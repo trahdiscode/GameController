@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neon Tilt Arena</title>
+  <style>
+    :root {
+      --bg: #090c15;
+      --card-bg: #12172a;
+      --border: #1f2747;
+      --text: #e6edff;
+      --muted: #8391b8;
+      --p1: #ff4757;
+      --p2: #2ed573;
+      --p3: #1e90ff;
+      --p4: #ffa502;
+      --kb: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 12px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .header-panel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 980px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 18px;
+      gap: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .room-info-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .qr-container {
+      width: 88px;
+      height: 88px;
+      background: #ffffff;
+      padding: 4px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+    .qr-img {
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+    .room-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .room-code-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .room-code {
+      font-size: 40px;
+      font-weight: 900;
+      letter-spacing: 6px;
+      font-family: monospace;
+      color: #fff;
+      line-height: 1;
+      text-shadow: 0 0 16px rgba(79, 107, 255, 0.6);
+    }
+    .url-text {
+      font-size: 12px;
+      color: #6c84b4;
+      text-decoration: none;
+      word-break: break-all;
+    }
+    .url-text:hover {
+      text-decoration: underline;
+      color: #9cb1ff;
+    }
+    .server-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      border: 1px solid #ffa502;
+      background: rgba(255, 165, 2, 0.12);
+      color: #ffa502;
+      align-self: flex-start;
+    }
+    .server-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 6px currentColor;
+    }
+    /* Players Scoreboard & Status Cards */
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      width: 100%;
+      max-width: 980px;
+      margin: 10px 0;
+    }
+    .player-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .player-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 4px;
+      background: var(--p-col, #555);
+    }
+    .player-card.active {
+      border-color: var(--p-col, #555);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .player-card.offline {
+      opacity: 0.55;
+    }
+    .player-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .player-tag {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--p-col);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .player-conn-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #444;
+    }
+    .player-card.active .player-conn-dot {
+      background: #2ed573;
+      box-shadow: 0 0 8px #2ed573;
+    }
+    .player-stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 13px;
+    }
+    .player-score {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .player-latency {
+      font-family: monospace;
+      font-size: 12px;
+      color: #38ef7d;
+      font-weight: 600;
+    }
+    .player-latency.none {
+      color: var(--muted);
+    }
+    /* Game Canvas */
+    .canvas-wrap {
+      width: 100%;
+      max-width: 980px;
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+      background: #0f1426;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #0d1222;
+    }
+    .instructions-bar {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      max-width: 980px;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .instructions-bar kbd {
+      background: #1c243f;
+      border: 1px solid #2d3963;
+      color: #c0cdf0;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header: Room info, QR, Server Connection Status -->
+  <div class="header-panel">
+    <div class="room-info-group">
+      <div class="qr-container">
+        <img id="qr-img" class="qr-img" alt="Scan to join" src="">
+      </div>
+      <div class="room-details">
+        <span class="room-code-tag">Room Code</span>
+        <div id="room-code" class="room-code">----</div>
+        <a id="controller-url" class="url-text" target="_blank" rel="noopener">Loading pairing URL…</a>
+      </div>
+    </div>
+    <div id="server-status" class="server-status-pill">
+      <span class="server-dot"></span>
+      <span id="server-status-text">Server: Connecting…</span>
+    </div>
+  </div>
+
+  <!-- Scoreboard: 4 Phone Players + Optional Keyboard Fallback -->
+  <div class="scoreboard" id="scoreboard">
+    <!-- Player 1 -->
+    <div id="card-p1" class="player-card offline" style="--p-col: var(--p1);">
+      <div class="player-card-header">
+        <span class="player-tag"><span class="player-conn-dot"></span>Player 1</span>
+        <span id="status-p1" style="font-size:11px;color:var(--muted)">Offline</span>
+      </div>
+      <div class="player-stats-row">
+        <span id="score-p1" class="player-score">0 pts</span>
+        <span id="rtt-p1" class="player-latency none">-- ms</span>
+      </div>
+    </div>
+
+    <!-- Player 2 -->
+    <div id="card-p2" class="player-card offline" style="--p-col: var(--p2);">
+      <div class="player-card-header">
+        <span class="player-tag"><span class="player-conn-dot"></span>Player 2</span>
+        <span id="status-p2" style="font-size:11px;color:var(--muted)">Offline</span>
+      </div>
+      <div class="player-stats-row">
+        <span id="score-p2" class="player-score">0 pts</span>
+        <span id="rtt-p2" class="player-latency none">-- ms</span>
+      </div>
+    </div>
+
+    <!-- Player 3 -->
+    <div id="card-p3" class="player-card offline" style="--p-col: var(--p3);">
+      <div class="player-card-header">
+        <span class="player-tag"><span class="player-conn-dot"></span>Player 3</span>
+        <span id="status-p3" style="font-size:11px;color:var(--muted)">Offline</span>
+      </div>
+      <div class="player-stats-row">
+        <span id="score-p3" class="player-score">0 pts</span>
+        <span id="rtt-p3" class="player-latency none">-- ms</span>
+      </div>
+    </div>
+
+    <!-- Player 4 -->
+    <div id="card-p4" class="player-card offline" style="--p-col: var(--p4);">
+      <div class="player-card-header">
+        <span class="player-tag"><span class="player-conn-dot"></span>Player 4</span>
+        <span id="status-p4" style="font-size:11px;color:var(--muted)">Offline</span>
+      </div>
+      <div class="player-stats-row">
+        <span id="score-p4" class="player-score">0 pts</span>
+        <span id="rtt-p4" class="player-latency none">-- ms</span>
+      </div>
+    </div>
+
+    <!-- Keyboard Player (P0) -->
+    <div id="card-kb" class="player-card offline" style="--p-col: var(--kb); display: none;">
+      <div class="player-card-header">
+        <span class="player-tag"><span class="player-conn-dot"></span>Keyboard (P0)</span>
+        <span id="status-kb" style="font-size:11px;color:var(--muted)">Standby</span>
+      </div>
+      <div class="player-stats-row">
+        <span id="score-kb" class="player-score">0 pts</span>
+        <span id="rtt-kb" class="player-latency">Local</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arena Canvas -->
+  <div class="canvas-wrap">
+    <canvas id="game-canvas" width="960" height="540"></canvas>
+  </div>
+
+  <!-- Controls help bar -->
+  <div class="instructions-bar">
+    <span>📱 <b>Phone:</b> Tilt to steer · Shake or tap JUMP to hop & dash</span>
+    <span>⌨️ <b>Keyboard Fallback:</b> <kbd>▲</kbd> <kbd>◀</kbd> <kbd>▼</kbd> <kbd>▶</kbd> steer · <kbd>Space</kbd> jump</span>
+  </div>
+
+  <script>
+    (function() {
+      const $ = id => document.getElementById(id);
+      const canvas = $('game-canvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+      const BALL_RADIUS = 16;
+
+      // Color scheme
+      const COLORS = {
+        0: '#ffffff',
+        1: '#ff4757',
+        2: '#2ed573',
+        3: '#1e90ff',
+        4: '#ffa502'
+      };
+
+      // Sound synthesizer (Web Audio API)
+      let audioCtx = null;
+      function playTone(freq, type, duration) {
+        try {
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+      }
+
+      // Players object: keyed by id
+      const players = {};
+
+      function getOrCreatePlayer(id) {
+        if (!players[id]) {
+          players[id] = {
+            id: Number(id),
+            x: 100 + Math.random() * (W - 200),
+            y: 100 + Math.random() * (H - 200),
+            vx: 0,
+            vy: 0,
+            tx: 0, // tilt target x
+            ty: 0, // tilt target y
+            score: 0,
+            hop: 0, // jump timer / elevation
+            on: true,
+            j: undefined, // jump counter baseline
+            rtt: null,
+            lastBounceVibe: 0,
+            trail: []
+          };
+        }
+        return players[id];
+      }
+
+      // Arena Obstacles / Walls
+      const walls = [
+        { x: 220, y: 100, w: 28, h: 180, color: '#303e70' },
+        { x: 712, y: 260, w: 28, h: 180, color: '#303e70' },
+        { x: 380, y: 180, w: 200, h: 26, color: '#303e70' },
+        { x: 380, y: 334, w: 200, h: 26, color: '#303e70' },
+        { x: 120, y: 380, w: 140, h: 26, color: '#303e70' },
+        { x: 700, y: 130, w: 140, h: 26, color: '#303e70' }
+      ];
+
+      // Speed Boost Pads
+      const boostPads = [
+        { x: 480, y: 90, w: 60, h: 36, dirX: 0, dirY: 1, label: '▼' },
+        { x: 480, y: 414, w: 60, h: 36, dirX: 0, dirY: -1, label: '▲' }
+      ];
+
+      // Collectible Star Orbs
+      const NUM_ORBS = 5;
+      const orbs = [];
+      function respawnOrb(orb) {
+        let safe = false;
+        let attempts = 0;
+        while (!safe && attempts < 100) {
+          attempts++;
+          const ox = 50 + Math.random() * (W - 100);
+          const oy = 50 + Math.random() * (H - 100);
+          // Check collision with walls
+          const hitsWall = walls.some(w => ox > w.x - 30 && ox < w.x + w.w + 30 && oy > w.y - 30 && oy < w.y + w.h + 30);
+          if (!hitsWall) {
+            orb.x = ox;
+            orb.y = oy;
+            orb.phase = Math.random() * Math.PI * 2;
+            safe = true;
+          }
+        }
+      }
+      for (let i = 0; i < NUM_ORBS; i++) {
+        const o = {};
+        respawnOrb(o);
+        orbs.push(o);
+      }
+
+      // Floating Particle Effects
+      const particles = [];
+      function addParticles(x, y, color, count = 10, speed = 120) {
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const spd = (0.3 + Math.random() * 0.7) * speed;
+          particles.push({
+            x, y,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd,
+            life: 1.0,
+            decay: 1.2 + Math.random() * 1.5,
+            color
+          });
+        }
+      }
+
+      // Shockwave jump ring
+      const shockwaves = [];
+      function addShockwave(x, y, color) {
+        shockwaves.push({ x, y, radius: 10, maxRadius: 55, life: 1.0, color });
+      }
+
+      // Jump action on ball
+      function jumpBall(p) {
+        p.hop = 0.6; // ~600ms airborne
+        const mag = Math.hypot(p.tx, p.ty) || 1;
+        p.vx += (p.tx / mag) * 420;
+        p.vy += (p.ty / mag) * 420;
+        addShockwave(p.x, p.y, COLORS[p.id]);
+        playTone(380, 'sine', 0.15);
+      }
+
+      // Send to WebSocket
+      let ws = null;
+      function send(obj) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify(obj));
+        }
+      }
+
+      // UI Server Status
+      function setServerStatus(text, type) {
+        const pill = $('server-status');
+        $('server-status-text').textContent = `Server: ${text}`;
+        if (type === 'ok') {
+          pill.style.color = 'var(--p2)';
+          pill.style.borderColor = 'var(--p2)';
+          pill.style.background = 'rgba(46, 213, 115, 0.12)';
+        } else if (type === 'warn') {
+          pill.style.color = '#ffa502';
+          pill.style.borderColor = '#ffa502';
+          pill.style.background = 'rgba(255, 165, 2, 0.12)';
+        } else {
+          pill.style.color = 'var(--p1)';
+          pill.style.borderColor = 'var(--p1)';
+          pill.style.background = 'rgba(255, 71, 87, 0.12)';
+        }
+      }
+
+      // Display QR & Controller URL
+      async function setupRoomDisplay(code) {
+        sessionStorage.setItem('room_code', code);
+        $('room-code').textContent = code;
+
+        const host = location.host || 'localhost:8000';
+        let baseOrigin = (location.origin && location.origin !== 'null' && location.protocol !== 'file:') ? location.origin : `http://${host}`;
+        if (['localhost', '127.0.0.1'].includes(location.hostname) || location.protocol === 'file:' || !location.host) {
+          try {
+            const res = await fetch(`http://${host}/info`);
+            const data = await res.json();
+            if (data && data.ip && data.ip !== '127.0.0.1') {
+              const portPart = (location.port && location.protocol !== 'file:') ? `:${location.port}` : ':8000';
+              baseOrigin = `http://${data.ip}${portPart}`;
+            }
+          } catch(e) {}
+        }
+
+        const controllerUrl = `${baseOrigin}/controller?code=${code}`;
+        $('qr-img').src = `http://${host}/qr?data=${encodeURIComponent(controllerUrl)}`;
+        const link = $('controller-url');
+        link.href = controllerUrl;
+        link.textContent = controllerUrl;
+      }
+
+      // Handle incoming WebSocket messages
+      function onServerMessage(msg) {
+        if (msg.type === 'room') {
+          setupRoomDisplay(msg.code);
+          if (Array.isArray(msg.players)) {
+            msg.players.forEach(pid => {
+              const p = getOrCreatePlayer(pid);
+              p.on = true;
+            });
+          }
+        } else if (msg.type === 'join') {
+          const p = getOrCreatePlayer(msg.id);
+          p.on = true;
+        } else if (msg.type === 'leave') {
+          if (players[msg.id]) {
+            players[msg.id].on = false;
+          }
+        } else if (msg.type === 'ping') {
+          // Immediately answer ping with pong
+          send({ type: 'pong', to: msg.id, ts: msg.ts });
+        } else if (msg.id != null && msg.b != null && msg.g != null) {
+          // Sensor packet from mobile controller
+          const p = getOrCreatePlayer(msg.id);
+          p.on = true;
+
+          // Mode badge
+          if (msg.mode) {
+            p.mode = msg.mode;
+          }
+
+          // Pitch and Roll clamp (-1 to 1) baseline
+          let tx = Math.max(-1, Math.min(1, msg.g / 22));
+          let ty = Math.max(-1, Math.min(1, msg.b / 22));
+
+          // Analog Virtual Stick input takes precedence if active
+          if (msg.sticks && (Math.abs(msg.sticks.lx) > 0.05 || Math.abs(msg.sticks.ly) > 0.05)) {
+            tx = msg.sticks.lx;
+            ty = msg.sticks.ly;
+          }
+
+          // D-Pad input
+          if (msg.buttons) {
+            if (msg.buttons.Left) tx = -1;
+            if (msg.buttons.Right) tx = 1;
+            if (msg.buttons.Up) ty = -1;
+            if (msg.buttons.Down) ty = 1;
+          }
+
+          // Racing Wheel & Pedals
+          if (msg.wheel != null && (msg.gas || msg.brake)) {
+            tx = msg.wheel;
+            ty = (msg.brake || 0) - (msg.gas || 0);
+          }
+
+          p.tx = tx;
+          p.ty = ty;
+
+          // Nitro / Turbo boost
+          if ((msg.buttons && (msg.buttons.B || msg.buttons.Nitro || msg.buttons.RT || msg.buttons.Boost)) || msg.turbo) {
+            p.vx *= 1.03;
+            p.vy *= 1.03;
+            addParticles(p.x, p.y, '#00d2ff', 2, 80);
+          }
+
+          // Handbrake / Drift
+          if (msg.buttons && (msg.buttons.Handbrake || msg.buttons.LT || msg.buttons.Brake)) {
+            p.vx *= 0.94;
+            p.vy *= 0.94;
+          }
+
+          // RTT / Latency from "l" field
+          if (msg.l != null) {
+            p.rtt = msg.l;
+          }
+
+          // Jump counter handling: first packet sets baseline, increment triggers jump
+          if (msg.j != null) {
+            if (p.j !== undefined && msg.j > p.j) {
+              jumpBall(p);
+            }
+            p.j = msg.j;
+          }
+
+          // Direct Jump / Action button (A button / Fire)
+          if (msg.buttons && (msg.buttons.A || msg.buttons.Jump || msg.buttons.Fire1)) {
+            if (p.hop <= 0.05) {
+              jumpBall(p);
+            }
+          }
+        }
+      }
+
+      // Connect to Game WebSocket
+      function connectBrowserWs() {
+        const savedCode = sessionStorage.getItem('room_code') || '';
+        const host = location.host || 'localhost:8000';
+        const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+        const wsUrl = `${proto}://${host}/ws/browser?code=${encodeURIComponent(savedCode)}`;
+
+        setServerStatus('Connecting...', 'warn');
+
+        try {
+          if (ws) {
+            ws.onopen = ws.onmessage = ws.onclose = ws.onerror = null;
+            try { ws.close(); } catch(e) {}
+          }
+          ws = new WebSocket(wsUrl);
+        } catch(e) {
+          setServerStatus('Error, reconnecting...', 'bad');
+          setTimeout(connectBrowserWs, 1000);
+          return;
+        }
+
+        ws.onopen = () => {
+          setServerStatus('Connected', 'ok');
+        };
+
+        ws.onmessage = e => {
+          try {
+            const data = JSON.parse(e.data);
+            onServerMessage(data);
+          } catch(err) {}
+        };
+
+        ws.onclose = () => {
+          setServerStatus('Disconnected (reconnecting…)', 'bad');
+          setTimeout(connectBrowserWs, 1000);
+        };
+
+        ws.onerror = () => {
+          // Handled in onclose
+        };
+      }
+
+      connectBrowserWs();
+
+      // Keyboard Fallback (Player 0)
+      const keys = {};
+      function updateKeyboardInput() {
+        const kbPlayer = getOrCreatePlayer(0);
+        $('card-kb').style.display = 'flex';
+        kbPlayer.on = true;
+
+        let tx = 0;
+        let ty = 0;
+        if (keys['ArrowRight'] || keys['KeyD']) tx += 1;
+        if (keys['ArrowLeft'] || keys['KeyA']) tx -= 1;
+        if (keys['ArrowDown'] || keys['KeyS']) ty += 1;
+        if (keys['ArrowUp'] || keys['KeyW']) ty -= 1;
+
+        kbPlayer.tx = tx;
+        kbPlayer.ty = ty;
+      }
+
+      window.addEventListener('keydown', e => {
+        if (e.key.startsWith('Arrow') || ['KeyW','KeyA','KeyS','KeyD',' '].includes(e.code) || e.key === ' ') {
+          if (e.key === ' ' || e.code === 'Space') {
+            e.preventDefault();
+            if (!e.repeat) {
+              const p = getOrCreatePlayer(0);
+              jumpBall(p);
+            }
+          }
+          keys[e.key] = true;
+          keys[e.code] = true;
+          updateKeyboardInput();
+        }
+      });
+
+      window.addEventListener('keyup', e => {
+        if (e.key.startsWith('Arrow') || ['KeyW','KeyA','KeyS','KeyD',' '].includes(e.code) || e.key === ' ') {
+          keys[e.key] = false;
+          keys[e.code] = false;
+          updateKeyboardInput();
+        }
+      });
+
+      // Wall collision handling
+      function handleWallCollision(p, w) {
+        const cx = Math.max(w.x, Math.min(p.x, w.x + w.w));
+        const cy = Math.max(w.y, Math.min(p.y, w.y + w.h));
+        let dx = p.x - cx;
+        let dy = p.y - cy;
+        let dist = Math.hypot(dx, dy);
+
+        if (dist < BALL_RADIUS) {
+          if (dist === 0) { dx = 1; dy = 0; dist = 1; }
+          const nx = dx / dist;
+          const ny = dy / dist;
+
+          // Push ball outside wall
+          p.x = cx + nx * BALL_RADIUS;
+          p.y = cy + ny * BALL_RADIUS;
+
+          const velNormal = p.vx * nx + p.vy * ny;
+          if (velNormal < 0) {
+            p.vx -= 1.6 * velNormal * nx;
+            p.vy -= 1.6 * velNormal * ny;
+
+            // Collision vibration event if noticeable speed
+            const speed = Math.hypot(p.vx, p.vy);
+            const now = performance.now();
+            if (speed > 160 && (now - p.lastBounceVibe > 300)) {
+              p.lastBounceVibe = now;
+              send({ type: 'vib', to: p.id, ms: 40 });
+              addParticles(p.x, p.y, '#ffffff', 5, 80);
+              playTone(180, 'triangle', 0.08);
+            }
+          }
+        }
+      }
+
+      // Physics and Game Loop
+      let lastTime = performance.now();
+
+      function gameLoop(time) {
+        const dt = Math.min((time - lastTime) / 1000, 0.05);
+        lastTime = time;
+
+        // Update Orbs phase
+        orbs.forEach(o => {
+          o.phase = (o.phase + dt * 2) % (Math.PI * 2);
+        });
+
+        // Update Players
+        for (const p of Object.values(players)) {
+          // Acceleration from tilt target
+          p.vx += p.tx * 950 * dt;
+          p.vy += p.ty * 950 * dt;
+
+          // Friction damping
+          const damping = Math.exp(-2.0 * dt);
+          p.vx *= damping;
+          p.vy *= damping;
+
+          // Position update
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+
+          // Decrement jump hop
+          if (p.hop > 0) {
+            p.hop = Math.max(0, p.hop - dt);
+          }
+
+          // Arena Outer Boundary collisions
+          if (p.x < BALL_RADIUS) {
+            p.x = BALL_RADIUS;
+            p.vx = Math.abs(p.vx) * 0.7;
+          } else if (p.x > W - BALL_RADIUS) {
+            p.x = W - BALL_RADIUS;
+            p.vx = -Math.abs(p.vx) * 0.7;
+          }
+
+          if (p.y < BALL_RADIUS) {
+            p.y = BALL_RADIUS;
+            p.vy = Math.abs(p.vy) * 0.7;
+          } else if (p.y > H - BALL_RADIUS) {
+            p.y = H - BALL_RADIUS;
+            p.vy = -Math.abs(p.vy) * 0.7;
+          }
+
+          // Wall collisions (only when not hopping high over them)
+          if (p.hop < 0.25) {
+            walls.forEach(w => handleWallCollision(p, w));
+          }
+
+          // Speed Boost Pads
+          boostPads.forEach(pad => {
+            if (p.x > pad.x && p.x < pad.x + pad.w && p.y > pad.y && p.y < pad.y + pad.h) {
+              p.vx += pad.dirX * 650 * dt;
+              p.vy += pad.dirY * 650 * dt;
+              if (Math.hypot(p.vx, p.vy) > 300) {
+                const now = performance.now();
+                if (now - p.lastBounceVibe > 350) {
+                  p.lastBounceVibe = now;
+                  send({ type: 'vib', to: p.id, ms: 50 });
+                  addParticles(p.x, p.y, '#ffa502', 4, 100);
+                }
+              }
+            }
+          });
+
+          // Collect Gem Orbs
+          orbs.forEach(orb => {
+            const dist = Math.hypot(p.x - orb.x, p.y - orb.y);
+            if (dist < BALL_RADIUS + 12) {
+              p.score += 10;
+              respawnOrb(orb);
+              addParticles(orb.x, orb.y, COLORS[p.id], 16, 180);
+              playTone(580, 'sine', 0.2);
+              // Send vibration to phone on gem collection event
+              send({ type: 'vib', to: p.id, ms: 60 });
+            }
+          });
+
+          // Ball motion trail
+          if (Math.hypot(p.vx, p.vy) > 30) {
+            p.trail.unshift({ x: p.x, y: p.y, life: 1.0 });
+            if (p.trail.length > 8) p.trail.pop();
+          }
+          p.trail.forEach(t => t.life -= dt * 3.5);
+          p.trail = p.trail.filter(t => t.life > 0);
+        }
+
+        // Update Particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const pt = particles[i];
+          pt.x += pt.vx * dt;
+          pt.y += pt.vy * dt;
+          pt.life -= pt.decay * dt;
+          if (pt.life <= 0) particles.splice(i, 1);
+        }
+
+        // Update Shockwaves
+        for (let i = shockwaves.length - 1; i >= 0; i--) {
+          const sw = shockwaves[i];
+          sw.radius += (sw.maxRadius - sw.radius) * 12 * dt;
+          sw.life -= 2.2 * dt;
+          if (sw.life <= 0) shockwaves.splice(i, 1);
+        }
+
+        // Draw Everything
+        drawArena();
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      // Drawing function
+      function drawArena() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Subtle background grid
+        ctx.strokeStyle = 'rgba(32, 42, 75, 0.4)';
+        ctx.lineWidth = 1;
+        for (let x = 40; x < W; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, H);
+          ctx.stroke();
+        }
+        for (let y = 40; y < H; y += 40) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(W, y);
+          ctx.stroke();
+        }
+
+        // Speed Boost Pads
+        boostPads.forEach(pad => {
+          ctx.fillStyle = 'rgba(255, 165, 2, 0.15)';
+          ctx.strokeStyle = '#ffa502';
+          ctx.lineWidth = 1.5;
+          ctx.fillRect(pad.x, pad.y, pad.w, pad.h);
+          ctx.strokeRect(pad.x, pad.y, pad.w, pad.h);
+          ctx.fillStyle = '#ffa502';
+          ctx.font = 'bold 16px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(pad.label, pad.x + pad.w / 2, pad.y + pad.h / 2);
+        });
+
+        // Walls
+        walls.forEach(w => {
+          ctx.fillStyle = w.color;
+          ctx.strokeStyle = '#4a5d99';
+          ctx.lineWidth = 2;
+          ctx.fillRect(w.x, w.y, w.w, w.h);
+          ctx.strokeRect(w.x, w.y, w.w, w.h);
+        });
+
+        // Collectible Gems / Stars
+        orbs.forEach(orb => {
+          const pulse = Math.sin(orb.phase) * 3;
+          const r = 8 + pulse;
+
+          // Glow halo
+          ctx.beginPath();
+          ctx.arc(orb.x, orb.y, r + 6, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+          ctx.fill();
+
+          // Core gem
+          ctx.beginPath();
+          ctx.arc(orb.x, orb.y, r, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffd32a';
+          ctx.fill();
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+
+        // Shockwaves
+        shockwaves.forEach(sw => {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, sw.life);
+          ctx.strokeStyle = sw.color;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        });
+
+        // Particles
+        particles.forEach(pt => {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, pt.life);
+          ctx.fillStyle = pt.color;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        // Players
+        for (const p of Object.values(players)) {
+          const color = COLORS[p.id] || '#ffffff';
+          const hopOffset = p.hop * 35;
+          const scale = 1 + p.hop * 0.4;
+          const r = BALL_RADIUS * scale;
+
+          ctx.save();
+          ctx.globalAlpha = p.on ? 1.0 : 0.35;
+
+          // Motion trails
+          p.trail.forEach(t => {
+            ctx.beginPath();
+            ctx.arc(t.x, t.y, BALL_RADIUS * 0.65 * t.life, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = (p.on ? 0.35 : 0.1) * t.life;
+            ctx.fill();
+          });
+          ctx.globalAlpha = p.on ? 1.0 : 0.35;
+
+          // Ball ground shadow
+          ctx.beginPath();
+          ctx.ellipse(p.x, p.y + 6, BALL_RADIUS * (1 - p.hop * 0.3), BALL_RADIUS * 0.5 * (1 - p.hop * 0.3), 0, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+          ctx.fill();
+
+          // Ball body (elevated if hopping)
+          const by = p.y - hopOffset;
+
+          // Glow outline
+          ctx.beginPath();
+          ctx.arc(p.x, by, r + 4, 0, Math.PI * 2);
+          ctx.fillStyle = `${color}33`;
+          ctx.fill();
+
+          // Sphere fill with light reflection
+          const grad = ctx.createRadialGradient(
+            p.x - r * 0.3, by - r * 0.3, r * 0.1,
+            p.x, by, r
+          );
+          grad.addColorStop(0, '#ffffff');
+          grad.addColorStop(0.3, color);
+          grad.addColorStop(1, '#000000');
+
+          ctx.beginPath();
+          ctx.arc(p.x, by, r, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          // Player Tag Label
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 11px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(p.id ? `P${p.id}` : 'KB', p.x, by);
+
+          ctx.restore();
+        }
+      }
+
+      // Live scoreboard UI update (~4Hz)
+      setInterval(() => {
+        // Update players 1 to 4
+        for (let id = 1; id <= 4; id++) {
+          const card = $(`card-p${id}`);
+          const statusEl = $(`status-p${id}`);
+          const scoreEl = $(`score-p${id}`);
+          const rttEl = $(`rtt-p${id}`);
+          const p = players[id];
+
+          if (p && p.on) {
+            card.classList.add('active');
+            const modeIcons = {
+              gamepad: '🎮 Gamepad',
+              racing: '🏎️ Racing',
+              motion: '📱 Motion',
+              trackpad: '🖱️ Trackpad',
+              deck: '⌨️ Deck'
+            };
+            statusEl.textContent = (p.mode && modeIcons[p.mode]) ? modeIcons[p.mode] : 'Connected';
+            statusEl.style.color = '#2ed573';
+            scoreEl.textContent = `${p.score} pts`;
+            if (p.rtt != null) {
+              rttEl.textContent = `${p.rtt} ms`;
+              rttEl.classList.remove('none');
+            } else {
+              rttEl.textContent = '-- ms';
+              rttEl.classList.add('none');
+            }
+          } else {
+            card.classList.remove('active');
+            card.classList.add('offline');
+            statusEl.textContent = p ? 'Disconnected' : 'Waiting';
+            statusEl.style.color = 'var(--muted)';
+            if (p) scoreEl.textContent = `${p.score} pts`;
+            rttEl.textContent = '-- ms';
+            rttEl.classList.add('none');
+          }
+        }
+
+        // Keyboard player
+        const kb = players[0];
+        if (kb && kb.on) {
+          const cardKb = $('card-kb');
+          cardKb.classList.add('active');
+          cardKb.classList.remove('offline');
+          $('status-kb').textContent = 'Active';
+          $('status-kb').style.color = '#2ed573';
+          $('score-kb').textContent = `${kb.score} pts`;
+        }
+      }, 250);
+
+      requestAnimationFrame(gameLoop);
+    })();
+  </script>
+</body>
+</html>

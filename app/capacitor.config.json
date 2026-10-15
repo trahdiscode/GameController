@@ -1,0 +1,7 @@
+{
+  "appId": "com.example.motionctl",
+  "appName": "Motion Controller",
+  "webDir": "www",
+  "server": { "androidScheme": "https", "cleartext": true },
+  "android": { "allowMixedContent": true }
+}
