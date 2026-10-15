@@ -7,6 +7,26 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+// ══════════════════════════════════════════════════════════════════════════════
+// PALETTE: Luxury Frosted Mint & Emerald
+// ══════════════════════════════════════════════════════════════════════════════
+class EmeraldPalette {
+  static const Color frostedMint = Color(0xFFD8F3DC);
+  static const Color celadon     = Color(0xFFB7E4C7);
+  static const Color celadon2    = Color(0xFF95D5B2);
+  static const Color mintLeaf    = Color(0xFF74C69D);
+  static const Color mintLeaf2   = Color(0xFF52B788);
+  static const Color seaGreen    = Color(0xFF40916C);
+  static const Color darkEmerald = Color(0xFF2D6A4F);
+  static const Color pineTeal    = Color(0xFF1B4332);
+  static const Color evergreen   = Color(0xFF081C15);
+
+  // Surface & Accents
+  static const Color cardBg      = Color(0xFF0E271D);
+  static const Color cardBorder  = Color(0xFF245741);
+  static const Color glowAccent  = Color(0x6652B788);
+}
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const TiltArenaApp());
@@ -21,11 +41,11 @@ class TiltArenaApp extends StatelessWidget {
       title: 'Tilt Arena Controller',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF090C15),
+        scaffoldBackgroundColor: EmeraldPalette.evergreen,
         colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF4F6BFF),
-          secondary: Color(0xFF2ED573),
-          surface: Color(0xFF12172B),
+          primary: EmeraldPalette.mintLeaf2,
+          secondary: EmeraldPalette.celadon2,
+          surface: EmeraldPalette.cardBg,
         ),
       ),
       home: const ControllerScreen(),
@@ -51,7 +71,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   bool _isConnected = false;
   bool _isConnecting = false;
   String _statusText = 'Disconnected';
-  Color _statusColor = const Color(0xFFFF4757);
+  Color _statusColor = const Color(0xFFE74C3C);
   int _playerId = 0;
   int _rtt = 0;
   int _jumpCount = 0;
@@ -80,7 +100,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   int _orientationMode = 0; // 0: Auto, 1: Locked Landscape, 2: Locked Portrait
   bool _invertRoll = false;
   bool _invertPitch = false;
-  double _sensitivity = 1.3; // Default 1.3x for responsive steering
+  double _sensitivity = 1.3;
 
   // Virtual Gamepad State
   double _stickX = 0.0;
@@ -90,13 +110,6 @@ class _ControllerScreenState extends State<ControllerScreen> {
   double _brakePedal = 0.0;
   final Map<String, int> _buttons = {};
 
-  final List<Color> _playerColors = [
-    const Color(0xFF4F6BFF),
-    const Color(0xFFFF4757), // P1 Red
-    const Color(0xFF2ED573), // P2 Green
-    const Color(0xFF1E90FF), // P3 Blue
-    const Color(0xFFFFA502), // P4 Orange
-  ];
 
   @override
   void initState() {
@@ -144,20 +157,17 @@ class _ControllerScreenState extends State<ControllerScreen> {
     });
 
     if (_orientationMode == 1) {
-      // Lock Landscape
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
       _showToast('Locked to Landscape');
     } else if (_orientationMode == 2) {
-      // Lock Portrait
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
       ]);
       _showToast('Locked to Portrait');
     } else {
-      // Auto
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
         DeviceOrientation.landscapeLeft,
@@ -172,9 +182,9 @@ class _ControllerScreenState extends State<ControllerScreen> {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg),
+        content: Text(msg, style: const TextStyle(color: EmeraldPalette.frostedMint, fontWeight: FontWeight.bold)),
         duration: const Duration(seconds: 1),
-        backgroundColor: const Color(0xFF1E2646),
+        backgroundColor: EmeraldPalette.pineTeal,
       ),
     );
   }
@@ -195,16 +205,14 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
       // Adapt axes based on phone orientation (zero gimbal lock)
       if (_isLandscape) {
-        // In landscape: Y axis is horizontal tilt, X axis is vertical tilt
         targetRoll = math.asin(-normY) * (180.0 / math.pi);
         targetPitch = math.asin(normX) * (180.0 / math.pi);
       } else {
-        // In portrait: X axis is horizontal tilt, Y axis is vertical tilt
         targetRoll = math.asin(normX) * (180.0 / math.pi);
         targetPitch = math.asin(normY) * (180.0 / math.pi);
       }
 
-      // Snappy and smooth Exponential Moving Average (alpha = 0.40)
+      // Snappy and responsive Exponential Moving Average (alpha = 0.40)
       _smoothRoll += (targetRoll - _smoothRoll) * 0.40;
       _smoothPitch += (targetPitch - _smoothPitch) * 0.40;
 
@@ -228,7 +236,6 @@ class _ControllerScreenState extends State<ControllerScreen> {
       ];
     });
 
-    // Decoupled UI timer at smooth 30 FPS
     _uiTimer?.cancel();
     _uiTimer = Timer.periodic(const Duration(milliseconds: 33), (_) {
       if (mounted) setState(() {});
@@ -294,7 +301,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
     setState(() {
       _isConnecting = true;
       _statusText = 'Connecting...';
-      _statusColor = const Color(0xFFFFA502);
+      _statusColor = EmeraldPalette.celadon2;
     });
 
     try {
@@ -338,7 +345,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
           _isConnecting = false;
           _reconnectAttempts = 0;
           _statusText = 'P$_playerId Connected';
-          _statusColor = _playerColors[_playerId % _playerColors.length];
+          _statusColor = EmeraldPalette.mintLeaf2;
         });
         _haptic(duration: 80);
       } else if (type == 'pong') {
@@ -369,7 +376,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
       _isConnected = false;
       _isConnecting = false;
       _statusText = 'Disconnected';
-      _statusColor = const Color(0xFFFF4757);
+      _statusColor = const Color(0xFFE74C3C);
     });
   }
 
@@ -383,7 +390,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
       _isConnected = false;
       _isConnecting = false;
       _statusText = 'Reconnecting...';
-      _statusColor = const Color(0xFFFF4757);
+      _statusColor = const Color(0xFFE74C3C);
     });
 
     _reconnectAttempts++;
@@ -459,77 +466,102 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            // Top Bar
-            _buildTopBar(),
-
-            // Connection Configuration Panel (Scrollable to prevent overflow)
-            if (!_isConnected) _buildSetupCard(),
-
-            // Mode Selector Tabs
-            _buildModeTabs(),
-
-            // Main Active Controller View
-            Expanded(
-              child: _selectedLayout == 0
-                  ? _buildMotionView()
-                  : (_selectedLayout == 1 ? _buildGamepadView() : _buildRacingView()),
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                EmeraldPalette.evergreen,
+                Color(0xFF0A221A),
+                EmeraldPalette.evergreen,
+              ],
             ),
-          ],
+          ),
+          child: Column(
+            children: [
+              // Top Bar
+              _buildTopBar(),
+
+              // Connection Configuration Panel
+              if (!_isConnected) _buildSetupCard(),
+
+              // Mode Selector Tabs
+              _buildModeTabs(),
+
+              // Main Active Controller View
+              Expanded(
+                child: _selectedLayout == 0
+                    ? _buildMotionView()
+                    : (_selectedLayout == 1 ? _buildGamepadView() : _buildRacingView()),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildTopBar() {
-    final padVert = _isLandscape ? 4.0 : 8.0;
+    final padVert = _isLandscape ? 6.0 : 10.0;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: padVert),
-      decoration: const BoxDecoration(
-        color: Color(0xFF12172B),
-        border: Border(bottom: BorderSide(color: Color(0xFF1E2646))),
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: padVert),
+      decoration: BoxDecoration(
+        color: EmeraldPalette.pineTeal.withOpacity(0.85),
+        border: const Border(bottom: BorderSide(color: EmeraldPalette.darkEmerald, width: 1.5)),
+        boxShadow: const [
+          BoxShadow(color: Color(0x66081C15), blurRadius: 10, offset: Offset(0, 3)),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Connection Status Pill
-          Row(
-            children: [
-              Container(
-                width: 9,
-                height: 9,
-                decoration: BoxDecoration(
-                  color: _statusColor,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(color: _statusColor.withOpacity(0.6), blurRadius: 6),
-                  ],
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: EmeraldPalette.evergreen.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: _statusColor.withOpacity(0.6), width: 1.2),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: _statusColor,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(color: _statusColor.withOpacity(0.8), blurRadius: 6),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                _statusText,
-                style: TextStyle(
-                  color: _statusColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
+                const SizedBox(width: 8),
+                Text(
+                  _statusText,
+                  style: TextStyle(
+                    color: _statusColor,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
 
-          // Actions Row (Orientation Lock, Invert Roll, Latency, Disconnect)
+          // Actions Row (Orientation Lock, Invert Roll, Invert Pitch, Sensitivity, Latency, Disconnect)
           Row(
             children: [
-              // Screen Rotation Lock Button
+              // Screen Rotation Lock
               IconButton(
                 icon: Icon(
                   _orientationMode == 1
                       ? Icons.stay_current_landscape
                       : (_orientationMode == 2 ? Icons.stay_current_portrait : Icons.screen_rotation),
-                  color: _orientationMode == 0 ? const Color(0xFF8290B8) : const Color(0xFF4F6BFF),
+                  color: _orientationMode == 0 ? EmeraldPalette.celadon2 : EmeraldPalette.frostedMint,
                   size: 18,
                 ),
                 tooltip: 'Toggle Screen Lock',
@@ -537,11 +569,11 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 visualDensity: VisualDensity.compact,
               ),
 
-              // Invert Steering (Roll) Toggle
+              // Invert Steering (Roll)
               IconButton(
                 icon: Icon(
                   Icons.swap_horiz,
-                  color: _invertRoll ? const Color(0xFFFFA502) : const Color(0xFF8290B8),
+                  color: _invertRoll ? EmeraldPalette.frostedMint : EmeraldPalette.celadon2,
                   size: 18,
                 ),
                 tooltip: _invertRoll ? 'Steering: Inverted' : 'Steering: Normal',
@@ -552,11 +584,11 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 visualDensity: VisualDensity.compact,
               ),
 
-              // Invert Pitch Toggle
+              // Invert Pitch
               IconButton(
                 icon: Icon(
                   Icons.swap_vert,
-                  color: _invertPitch ? const Color(0xFFFFA502) : const Color(0xFF8290B8),
+                  color: _invertPitch ? EmeraldPalette.frostedMint : EmeraldPalette.celadon2,
                   size: 18,
                 ),
                 tooltip: _invertPitch ? 'Pitch: Inverted' : 'Pitch: Normal',
@@ -582,16 +614,17 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   _showToast('Sensitivity: ${_sensitivity}x');
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E2646),
-                    borderRadius: BorderRadius.circular(4),
+                    color: EmeraldPalette.evergreen,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: EmeraldPalette.darkEmerald, width: 1.2),
                   ),
                   child: Text(
                     '${_sensitivity}x',
                     style: const TextStyle(
-                      color: Color(0xFF4F6BFF),
+                      color: EmeraldPalette.mintLeaf2,
                       fontWeight: FontWeight.bold,
                       fontSize: 11,
                     ),
@@ -601,15 +634,16 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
               if (_isConnected) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E2646),
-                    borderRadius: BorderRadius.circular(4),
+                    color: EmeraldPalette.evergreen,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: EmeraldPalette.darkEmerald),
                   ),
                   child: Text(
                     '${_rtt}ms',
                     style: const TextStyle(
-                      color: Color(0xFF2ED573),
+                      color: EmeraldPalette.mintLeaf,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'monospace',
                       fontSize: 11,
@@ -617,7 +651,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.power_settings_new, color: Color(0xFFFF4757), size: 18),
+                  icon: const Icon(Icons.power_settings_new, color: Color(0xFFE74C3C), size: 18),
                   onPressed: _disconnect,
                   tooltip: 'Disconnect',
                   visualDensity: VisualDensity.compact,
@@ -632,71 +666,92 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
   Widget _buildSetupCard() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10, vertical: _isLandscape ? 4 : 8),
-      padding: EdgeInsets.all(_isLandscape ? 8 : 12),
+      margin: EdgeInsets.symmetric(horizontal: 12, vertical: _isLandscape ? 4 : 8),
+      padding: EdgeInsets.all(_isLandscape ? 10 : 14),
       decoration: BoxDecoration(
-        color: const Color(0xFF12172B),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF1E2646)),
+        color: EmeraldPalette.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: EmeraldPalette.cardBorder, width: 1.5),
+        boxShadow: const [
+          BoxShadow(color: Color(0x44081C15), blurRadius: 10, offset: Offset(0, 4)),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: TextField(
-                  controller: _serverController,
-                  decoration: const InputDecoration(
-                    labelText: 'Laptop IP : Port',
-                    labelStyle: TextStyle(color: Color(0xFF8290B8), fontSize: 11),
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    border: OutlineInputBorder(),
-                    hintText: '192.168.1.X:8000',
-                  ),
-                  style: const TextStyle(color: Colors.white, fontSize: 13),
+          Expanded(
+            flex: 3,
+            child: TextField(
+              controller: _serverController,
+              decoration: InputDecoration(
+                labelText: 'Laptop IP : Port',
+                labelStyle: const TextStyle(color: EmeraldPalette.celadon2, fontSize: 12),
+                isDense: true,
+                filled: true,
+                fillColor: EmeraldPalette.evergreen.withOpacity(0.8),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: EmeraldPalette.darkEmerald),
                 ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: EmeraldPalette.mintLeaf2, width: 1.5),
+                ),
+                hintText: '192.168.1.X:8000',
+                hintStyle: const TextStyle(color: Colors.white24),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 2,
-                child: TextField(
-                  controller: _codeController,
-                  keyboardType: TextInputType.number,
-                  maxLength: 4,
-                  decoration: const InputDecoration(
-                    labelText: 'Room Code',
-                    labelStyle: TextStyle(color: Color(0xFF8290B8), fontSize: 11),
-                    isDense: true,
-                    counterText: '',
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    border: OutlineInputBorder(),
-                    hintText: '4-digits',
-                  ),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
-                    fontSize: 14,
-                  ),
+              style: const TextStyle(color: EmeraldPalette.frostedMint, fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: _codeController,
+              keyboardType: TextInputType.number,
+              maxLength: 4,
+              decoration: InputDecoration(
+                labelText: 'Room Code',
+                labelStyle: const TextStyle(color: EmeraldPalette.celadon2, fontSize: 12),
+                isDense: true,
+                counterText: '',
+                filled: true,
+                fillColor: EmeraldPalette.evergreen.withOpacity(0.8),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: EmeraldPalette.darkEmerald),
                 ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: EmeraldPalette.mintLeaf2, width: 1.5),
+                ),
+                hintText: '4-digits',
+                hintStyle: const TextStyle(color: Colors.white24),
               ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: _isConnecting ? null : _connect,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4F6BFF),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: Text(
-                  _isConnecting ? '...' : 'Connect',
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
+              style: const TextStyle(
+                color: EmeraldPalette.frostedMint,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2.5,
+                fontSize: 15,
               ),
-            ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: _isConnecting ? null : _connect,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: EmeraldPalette.mintLeaf2,
+              foregroundColor: EmeraldPalette.evergreen,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              elevation: 4,
+              shadowColor: EmeraldPalette.mintLeaf2.withOpacity(0.5),
+            ),
+            child: Text(
+              _isConnecting ? '...' : 'Connect',
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+            ),
           ),
         ],
       ),
@@ -705,15 +760,16 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
   Widget _buildModeTabs() {
     final modes = ['📱 Motion', '🎮 Gamepad', '🏎️ Wheel'];
-    final tabHeight = _isLandscape ? 32.0 : 38.0;
+    final tabHeight = _isLandscape ? 34.0 : 40.0;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10, vertical: _isLandscape ? 3 : 6),
+      margin: EdgeInsets.symmetric(horizontal: 12, vertical: _isLandscape ? 4 : 6),
       height: tabHeight,
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: const Color(0xFF12172B),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF1E2646)),
+        color: EmeraldPalette.cardBg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: EmeraldPalette.cardBorder, width: 1.2),
       ),
       child: Row(
         children: List.generate(modes.length, (idx) {
@@ -724,17 +780,32 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 setState(() => _selectedLayout = idx);
                 _haptic(duration: 20);
               },
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: isSel ? const Color(0xFF4F6BFF) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(6),
+                  gradient: isSel
+                      ? const LinearGradient(
+                          colors: [EmeraldPalette.seaGreen, EmeraldPalette.mintLeaf2],
+                        )
+                      : null,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: isSel
+                      ? [
+                          BoxShadow(
+                            color: EmeraldPalette.mintLeaf2.withOpacity(0.35),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          )
+                        ]
+                      : null,
                 ),
                 child: Text(
                   modes[idx],
                   style: TextStyle(
-                    color: isSel ? Colors.white : const Color(0xFF8290B8),
-                    fontWeight: isSel ? FontWeight.bold : FontWeight.w500,
+                    color: isSel ? EmeraldPalette.evergreen : EmeraldPalette.celadon2,
+                    fontWeight: isSel ? FontWeight.w900 : FontWeight.w600,
+                    letterSpacing: 0.3,
                     fontSize: 12,
                   ),
                 ),
@@ -746,7 +817,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
     );
   }
 
-  // VIEW 1: MOTION & TILT (Fully Responsive for Landscape & Portrait)
+  // VIEW 1: MOTION & TILT (Luxury Emerald Spirit Cockpit)
   Widget _buildMotionView() {
     final calRoll = _smoothRoll - _offsetRoll;
     final calPitch = _smoothPitch - _offsetPitch;
@@ -757,32 +828,29 @@ class _ControllerScreenState extends State<ControllerScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (_isLandscape) {
-          // LANDSCAPE: Dual-cockpit layout (Left: Telemetry & Spirit Level, Right: Giant Jump Target)
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Left Side: Spirit level + Telemetry + Calibrate
+                // Left: Cockpit Spirit Level & Telemetry
                 Expanded(
                   flex: 3,
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF12172B),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF1E2646)),
+                      color: EmeraldPalette.cardBg,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: EmeraldPalette.cardBorder, width: 1.5),
                     ),
                     child: Row(
                       children: [
-                        // Spirit Level Circle
                         Expanded(
                           flex: 3,
                           child: Center(
                             child: _buildSpiritLevelCircle(bubbleX, bubbleY, 120),
                           ),
                         ),
-                        // Telemetry info & Calibrate button
                         Expanded(
                           flex: 2,
                           child: Column(
@@ -792,11 +860,11 @@ class _ControllerScreenState extends State<ControllerScreen> {
                               _telemetryItem('Pitch (Tilt)', '${calPitch.toStringAsFixed(1)}°'),
                               OutlinedButton.icon(
                                 onPressed: _calibrateNeutral,
-                                icon: const Icon(Icons.center_focus_strong, color: Color(0xFF4F6BFF), size: 14),
-                                label: const Text('Calibrate', style: TextStyle(color: Colors.white, fontSize: 11)),
+                                icon: const Icon(Icons.center_focus_strong, color: EmeraldPalette.mintLeaf2, size: 14),
+                                label: const Text('Calibrate', style: TextStyle(color: EmeraldPalette.frostedMint, fontSize: 11)),
                                 style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                  side: const BorderSide(color: Color(0xFF4F6BFF)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  side: const BorderSide(color: EmeraldPalette.mintLeaf2),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                                 ),
                               ),
@@ -808,9 +876,9 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   ),
                 ),
 
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
 
-                // Right Side: Giant JUMP / BOOST Button
+                // Right: Giant Emerald Jump Target
                 Expanded(
                   flex: 2,
                   child: _buildJumpButton(isFullHeight: true),
@@ -819,7 +887,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
             ),
           );
         } else {
-          // PORTRAIT: Vertical stack
+          // Portrait layout
           return Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
@@ -827,17 +895,20 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 // Telemetry and Spirit Level
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF12172B),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF1E2646)),
+                      color: EmeraldPalette.cardBg,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: EmeraldPalette.cardBorder, width: 1.5),
+                      boxShadow: const [
+                        BoxShadow(color: Color(0x33081C15), blurRadius: 10, offset: Offset(0, 4)),
+                      ],
                     ),
                     child: Column(
                       children: [
                         Expanded(
                           child: Center(
-                            child: _buildSpiritLevelCircle(bubbleX, bubbleY, 150),
+                            child: _buildSpiritLevelCircle(bubbleX, bubbleY, 155),
                           ),
                         ),
                         Row(
@@ -853,25 +924,25 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
 
                 // Calibrate Neutral Button
                 OutlinedButton.icon(
                   onPressed: _calibrateNeutral,
-                  icon: const Icon(Icons.center_focus_strong, color: Color(0xFF4F6BFF), size: 16),
-                  label: const Text('Calibrate Neutral Angle', style: TextStyle(color: Colors.white, fontSize: 13)),
+                  icon: const Icon(Icons.center_focus_strong, color: EmeraldPalette.mintLeaf2, size: 16),
+                  label: const Text('Calibrate Neutral Angle', style: TextStyle(color: EmeraldPalette.frostedMint, fontSize: 13, fontWeight: FontWeight.w600)),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF4F6BFF)),
-                    minimumSize: const Size(double.infinity, 38),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    side: const BorderSide(color: EmeraldPalette.mintLeaf2, width: 1.5),
+                    minimumSize: const Size(double.infinity, 42),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
 
                 // Giant JUMP Button
                 SizedBox(
-                  height: 80,
+                  height: 85,
                   width: double.infinity,
                   child: _buildJumpButton(isFullHeight: false),
                 ),
@@ -889,37 +960,46 @@ class _ControllerScreenState extends State<ControllerScreen> {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: const Color(0xFF090C15),
-        border: Border.all(color: const Color(0xFF222C54), width: 2),
+        color: EmeraldPalette.evergreen,
+        border: Border.all(color: EmeraldPalette.darkEmerald, width: 2.2),
         boxShadow: const [
-          BoxShadow(color: Colors.black54, blurRadius: 8, offset: Offset(0, 3)),
+          BoxShadow(color: Color(0x66000000), blurRadius: 10, offset: Offset(0, 3)),
         ],
       ),
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Container(width: size, height: 1, color: Colors.white10),
-          Container(width: 1, height: size, color: Colors.white10),
+          // Crosshairs in Celadon tint
+          Container(width: size, height: 1, color: EmeraldPalette.pineTeal.withOpacity(0.8)),
+          Container(width: 1, height: size, color: EmeraldPalette.pineTeal.withOpacity(0.8)),
           Container(
             width: size * 0.35,
             height: size * 0.35,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white12),
+              border: Border.all(color: EmeraldPalette.seaGreen.withOpacity(0.5)),
             ),
           ),
+          // Radiant Target Bubble
           Transform.translate(
             offset: Offset(bubbleX * (size * 0.36), bubbleY * (size * 0.36)),
             child: Container(
-              width: size * 0.16,
-              height: size * 0.16,
+              width: size * 0.17,
+              height: size * 0.17,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _playerColors[_playerId % _playerColors.length],
+                gradient: const RadialGradient(
+                  colors: [
+                    EmeraldPalette.frostedMint,
+                    EmeraldPalette.mintLeaf2,
+                    EmeraldPalette.seaGreen,
+                  ],
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: _playerColors[_playerId % _playerColors.length].withOpacity(0.8),
-                    blurRadius: 8,
+                    color: EmeraldPalette.mintLeaf2.withOpacity(0.9),
+                    blurRadius: 12,
+                    spreadRadius: 2,
                   ),
                 ],
               ),
@@ -935,12 +1015,23 @@ class _ControllerScreenState extends State<ControllerScreen> {
       onTapDown: (_) => _triggerJump(),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           gradient: const LinearGradient(
-            colors: [Color(0xFF2ED573), Color(0xFF1B9E50)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              EmeraldPalette.mintLeaf,
+              EmeraldPalette.mintLeaf2,
+              EmeraldPalette.seaGreen,
+            ],
           ),
+          border: Border.all(color: EmeraldPalette.frostedMint.withOpacity(0.6), width: 1.5),
           boxShadow: [
-            BoxShadow(color: const Color(0xFF2ED573).withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 3)),
+            BoxShadow(
+              color: EmeraldPalette.mintLeaf2.withOpacity(0.45),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
         alignment: Alignment.center,
@@ -950,16 +1041,16 @@ class _ControllerScreenState extends State<ControllerScreen> {
             Text(
               'JUMP',
               style: TextStyle(
-                color: Colors.white,
-                fontSize: isFullHeight ? 24 : 22,
+                color: EmeraldPalette.evergreen,
+                fontSize: isFullHeight ? 26 : 24,
                 fontWeight: FontWeight.w900,
-                letterSpacing: 2,
+                letterSpacing: 3,
               ),
             ),
             const SizedBox(height: 2),
-            const Text(
-              'Shake phone or tap',
-              style: TextStyle(color: Colors.white70, fontSize: 11),
+            Text(
+              'Shake phone or tap target',
+              style: TextStyle(color: EmeraldPalette.evergreen.withOpacity(0.8), fontSize: 11, fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -970,14 +1061,22 @@ class _ControllerScreenState extends State<ControllerScreen> {
   Widget _telemetryItem(String label, String val) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF8290B8), fontSize: 10)),
-        const SizedBox(height: 1),
-        Text(val, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+        Text(label, style: const TextStyle(color: EmeraldPalette.celadon2, fontSize: 11, fontWeight: FontWeight.w500)),
+        const SizedBox(height: 2),
+        Text(
+          val,
+          style: const TextStyle(
+            color: EmeraldPalette.frostedMint,
+            fontWeight: FontWeight.w900,
+            fontFamily: 'monospace',
+            fontSize: 15,
+          ),
+        ),
       ],
     );
   }
 
-  // VIEW 2: PRO GAMEPAD
+  // VIEW 2: PRO GAMEPAD (Frosted Mint Accents)
   Widget _buildGamepadView() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: _isLandscape ? 6.0 : 16.0),
@@ -999,7 +1098,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   }
 
   Widget _buildVirtualJoystick() {
-    final size = _isLandscape ? 120.0 : 135.0;
+    final size = _isLandscape ? 120.0 : 140.0;
     final radius = size / 2.0;
 
     return GestureDetector(
@@ -1026,8 +1125,11 @@ class _ControllerScreenState extends State<ControllerScreen> {
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: const Color(0xFF101428),
-          border: Border.all(color: const Color(0xFF222C54), width: 2),
+          color: EmeraldPalette.evergreen,
+          border: Border.all(color: EmeraldPalette.cardBorder, width: 2.2),
+          boxShadow: const [
+            BoxShadow(color: Color(0x66000000), blurRadius: 10),
+          ],
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -1035,12 +1137,17 @@ class _ControllerScreenState extends State<ControllerScreen> {
             Transform.translate(
               offset: Offset(_stickX * (radius * 0.65), _stickY * (radius * 0.65)),
               child: Container(
-                width: size * 0.36,
-                height: size * 0.36,
-                decoration: const BoxDecoration(
+                width: size * 0.38,
+                height: size * 0.38,
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF3B4C80),
-                  boxShadow: [BoxShadow(color: Colors.black54, blurRadius: 6)],
+                  gradient: const RadialGradient(
+                    colors: [EmeraldPalette.mintLeaf2, EmeraldPalette.pineTeal],
+                  ),
+                  border: Border.all(color: EmeraldPalette.frostedMint, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(color: EmeraldPalette.mintLeaf2.withOpacity(0.5), blurRadius: 8),
+                  ],
                 ),
               ),
             ),
@@ -1051,7 +1158,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   }
 
   Widget _buildABXYDiamond() {
-    final size = _isLandscape ? 120.0 : 135.0;
+    final size = _isLandscape ? 120.0 : 140.0;
 
     return SizedBox(
       width: size,
@@ -1059,17 +1166,17 @@ class _ControllerScreenState extends State<ControllerScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Positioned(top: 0, child: _gamepadBtn('Y', const Color(0xFFFFA502))),
-          Positioned(bottom: 0, child: _gamepadBtn('A', const Color(0xFF2ED573), action: _triggerJump)),
-          Positioned(left: 0, child: _gamepadBtn('X', const Color(0xFF1E90FF))),
-          Positioned(right: 0, child: _gamepadBtn('B', const Color(0xFFFF4757))),
+          Positioned(top: 0, child: _gamepadBtn('Y', EmeraldPalette.frostedMint)),
+          Positioned(bottom: 0, child: _gamepadBtn('A', EmeraldPalette.mintLeaf2, action: _triggerJump)),
+          Positioned(left: 0, child: _gamepadBtn('X', EmeraldPalette.mintLeaf)),
+          Positioned(right: 0, child: _gamepadBtn('B', EmeraldPalette.celadon2)),
         ],
       ),
     );
   }
 
   Widget _gamepadBtn(String label, Color col, {VoidCallback? action}) {
-    final btnSize = _isLandscape ? 38.0 : 42.0;
+    final btnSize = _isLandscape ? 38.0 : 44.0;
 
     return GestureDetector(
       onTapDown: (_) {
@@ -1084,22 +1191,24 @@ class _ControllerScreenState extends State<ControllerScreen> {
         height: btnSize,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: const Color(0xFF12172B),
+          color: EmeraldPalette.cardBg,
           border: Border.all(color: col, width: 2),
-          boxShadow: [BoxShadow(color: col.withOpacity(0.3), blurRadius: 6)],
+          boxShadow: [
+            BoxShadow(color: col.withOpacity(0.35), blurRadius: 6),
+          ],
         ),
         alignment: Alignment.center,
         child: Text(
           label,
-          style: TextStyle(color: col, fontWeight: FontWeight.bold, fontSize: btnSize * 0.4),
+          style: TextStyle(color: col, fontWeight: FontWeight.w900, fontSize: btnSize * 0.42),
         ),
       ),
     );
   }
 
-  // VIEW 3: RACING WHEEL
+  // VIEW 3: RACING WHEEL (Emerald Steering & Pedals)
   Widget _buildRacingView() {
-    final wheelSize = _isLandscape ? 130.0 : 150.0;
+    final wheelSize = _isLandscape ? 130.0 : 155.0;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: _isLandscape ? 6.0 : 16.0),
@@ -1125,13 +1234,13 @@ class _ControllerScreenState extends State<ControllerScreen> {
                     height: wheelSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFF12172B),
-                      border: Border.all(color: const Color(0xFF4F6BFF), width: 5),
+                      color: EmeraldPalette.cardBg,
+                      border: Border.all(color: EmeraldPalette.mintLeaf2, width: 6),
                       boxShadow: [
-                        BoxShadow(color: const Color(0xFF4F6BFF).withOpacity(0.3), blurRadius: 10),
+                        BoxShadow(color: EmeraldPalette.mintLeaf2.withOpacity(0.35), blurRadius: 14),
                       ],
                     ),
-                    child: const Icon(Icons.radio_button_checked, size: 36, color: Colors.white24),
+                    child: const Icon(Icons.radio_button_checked, size: 38, color: EmeraldPalette.celadon2),
                   ),
                 ),
               ),
@@ -1151,12 +1260,23 @@ class _ControllerScreenState extends State<ControllerScreen> {
                     onTapCancel: () => setState(() => _gasPedal = 0.0),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: _gasPedal > 0 ? const Color(0xFF2ED573) : const Color(0xFF12172B),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: const Color(0xFF2ED573), width: 2),
+                        gradient: _gasPedal > 0
+                            ? const LinearGradient(colors: [EmeraldPalette.mintLeaf2, EmeraldPalette.seaGreen])
+                            : null,
+                        color: _gasPedal > 0 ? null : EmeraldPalette.cardBg,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: EmeraldPalette.mintLeaf2, width: 2),
                       ),
                       alignment: Alignment.center,
-                      child: const Text('GAS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: Text(
+                        'GAS',
+                        style: TextStyle(
+                          color: _gasPedal > 0 ? EmeraldPalette.evergreen : EmeraldPalette.frostedMint,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.5,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -1171,12 +1291,26 @@ class _ControllerScreenState extends State<ControllerScreen> {
                     onTapCancel: () => setState(() => _brakePedal = 0.0),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: _brakePedal > 0 ? const Color(0xFFFF4757) : const Color(0xFF12172B),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: const Color(0xFFFF4757), width: 2),
+                        gradient: _brakePedal > 0
+                            ? const LinearGradient(colors: [Color(0xFFE74C3C), Color(0xFFC0392B)])
+                            : null,
+                        color: _brakePedal > 0 ? null : EmeraldPalette.cardBg,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _brakePedal > 0 ? const Color(0xFFE74C3C) : EmeraldPalette.darkEmerald,
+                          width: 2,
+                        ),
                       ),
                       alignment: Alignment.center,
-                      child: const Text('BRAKE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: Text(
+                        'BRAKE',
+                        style: TextStyle(
+                          color: _brakePedal > 0 ? Colors.white : EmeraldPalette.celadon2,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.5,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
                   ),
                 ),

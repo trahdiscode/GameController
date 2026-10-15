@@ -6,15 +6,25 @@
   <title>Neon Tilt Arena</title>
   <style>
     :root {
-      --bg: #090c15;
-      --card-bg: #12172a;
-      --border: #1f2747;
-      --text: #e6edff;
-      --muted: #8391b8;
-      --p1: #ff4757;
-      --p2: #2ed573;
-      --p3: #1e90ff;
-      --p4: #ffa502;
+      --frosted-mint: #d8f3dc;
+      --celadon: #b7e4c7;
+      --celadon-2: #95d5b2;
+      --mint-leaf: #74c69d;
+      --mint-leaf-2: #52b788;
+      --sea-green: #40916c;
+      --dark-emerald: #2d6a4f;
+      --pine-teal: #1b4332;
+      --evergreen: #081c15;
+
+      --bg: #081c15;
+      --card-bg: #0e271d;
+      --border: #1b4332;
+      --text: #d8f3dc;
+      --muted: #74c69d;
+      --p1: #52b788;
+      --p2: #d8f3dc;
+      --p3: #74c69d;
+      --p4: #b7e4c7;
       --kb: #ffffff;
     }
     * { box-sizing: border-box; }
@@ -42,7 +52,7 @@
       border-radius: 16px;
       padding: 12px 18px;
       gap: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 20px rgba(45, 106, 79, 0.2);
     }
     .room-info-group {
       display: flex;
@@ -58,7 +68,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 10px rgba(82, 183, 136, 0.3);
+      border: 2px solid var(--mint-leaf-2);
       flex-shrink: 0;
     }
     .qr-img {
@@ -83,19 +94,19 @@
       font-weight: 900;
       letter-spacing: 6px;
       font-family: monospace;
-      color: #fff;
+      color: var(--frosted-mint);
       line-height: 1;
-      text-shadow: 0 0 16px rgba(79, 107, 255, 0.6);
+      text-shadow: 0 0 16px rgba(82, 183, 136, 0.6);
     }
     .url-text {
       font-size: 12px;
-      color: #6c84b4;
+      color: var(--celadon-2);
       text-decoration: none;
       word-break: break-all;
     }
     .url-text:hover {
       text-decoration: underline;
-      color: #9cb1ff;
+      color: var(--frosted-mint);
     }
     .server-status-pill {
       display: inline-flex;
@@ -106,9 +117,9 @@
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.3px;
-      border: 1px solid #ffa502;
-      background: rgba(255, 165, 2, 0.12);
-      color: #ffa502;
+      border: 1px solid var(--mint-leaf-2);
+      background: rgba(82, 183, 136, 0.15);
+      color: var(--frosted-mint);
       align-self: flex-start;
     }
     .server-dot {
@@ -144,11 +155,11 @@
       position: absolute;
       top: 0; left: 0; bottom: 0;
       width: 4px;
-      background: var(--p-col, #555);
+      background: var(--p-col, var(--mint-leaf));
     }
     .player-card.active {
-      border-color: var(--p-col, #555);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      border-color: var(--p-col, var(--mint-leaf));
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3), 0 0 10px rgba(82, 183, 136, 0.2);
     }
     .player-card.offline {
       opacity: 0.55;
@@ -173,8 +184,8 @@
       background: #444;
     }
     .player-card.active .player-conn-dot {
-      background: #2ed573;
-      box-shadow: 0 0 8px #2ed573;
+      background: var(--mint-leaf-2);
+      box-shadow: 0 0 8px var(--mint-leaf-2);
     }
     .player-stats-row {
       display: flex;
@@ -185,12 +196,12 @@
     .player-score {
       font-size: 18px;
       font-weight: 800;
-      color: #fff;
+      color: var(--frosted-mint);
     }
     .player-latency {
       font-family: monospace;
       font-size: 12px;
-      color: #38ef7d;
+      color: var(--mint-leaf-2);
       font-weight: 600;
     }
     .player-latency.none {
@@ -204,14 +215,14 @@
       border-radius: 16px;
       overflow: hidden;
       border: 1.5px solid var(--border);
-      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
-      background: #0f1426;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6), 0 0 20px rgba(45, 106, 79, 0.3);
+      background: #081c15;
     }
     canvas {
       display: block;
       width: 100%;
       height: auto;
-      background: #0d1222;
+      background: #081c15;
     }
     .instructions-bar {
       margin-top: 10px;
@@ -225,9 +236,9 @@
       flex-wrap: wrap;
     }
     .instructions-bar kbd {
-      background: #1c243f;
-      border: 1px solid #2d3963;
-      color: #c0cdf0;
+      background: #112c22;
+      border: 1px solid #2d6a4f;
+      color: var(--frosted-mint);
       padding: 2px 7px;
       border-radius: 6px;
       font-size: 12px;
@@ -340,10 +351,10 @@
       // Color scheme
       const COLORS = {
         0: '#ffffff',
-        1: '#ff4757',
-        2: '#2ed573',
-        3: '#1e90ff',
-        4: '#ffa502'
+        1: '#52b788',
+        2: '#d8f3dc',
+        3: '#74c69d',
+        4: '#b7e4c7'
       };
 
       // Sound synthesizer (Web Audio API)
@@ -391,12 +402,12 @@
 
       // Arena Obstacles / Walls
       const walls = [
-        { x: 220, y: 100, w: 28, h: 180, color: '#303e70' },
-        { x: 712, y: 260, w: 28, h: 180, color: '#303e70' },
-        { x: 380, y: 180, w: 200, h: 26, color: '#303e70' },
-        { x: 380, y: 334, w: 200, h: 26, color: '#303e70' },
-        { x: 120, y: 380, w: 140, h: 26, color: '#303e70' },
-        { x: 700, y: 130, w: 140, h: 26, color: '#303e70' }
+        { x: 220, y: 100, w: 28, h: 180, color: '#1b4332' },
+        { x: 712, y: 260, w: 28, h: 180, color: '#1b4332' },
+        { x: 380, y: 180, w: 200, h: 26, color: '#1b4332' },
+        { x: 380, y: 334, w: 200, h: 26, color: '#1b4332' },
+        { x: 120, y: 380, w: 140, h: 26, color: '#1b4332' },
+        { x: 700, y: 130, w: 140, h: 26, color: '#1b4332' }
       ];
 
       // Speed Boost Pads
@@ -477,17 +488,17 @@
         const pill = $('server-status');
         $('server-status-text').textContent = `Server: ${text}`;
         if (type === 'ok') {
-          pill.style.color = 'var(--p2)';
-          pill.style.borderColor = 'var(--p2)';
-          pill.style.background = 'rgba(46, 213, 115, 0.12)';
+          pill.style.color = 'var(--mint-leaf-2)';
+          pill.style.borderColor = 'var(--mint-leaf-2)';
+          pill.style.background = 'rgba(82, 183, 136, 0.16)';
         } else if (type === 'warn') {
           pill.style.color = '#ffa502';
           pill.style.borderColor = '#ffa502';
-          pill.style.background = 'rgba(255, 165, 2, 0.12)';
+          pill.style.background = 'rgba(255, 165, 2, 0.15)';
         } else {
-          pill.style.color = 'var(--p1)';
-          pill.style.borderColor = 'var(--p1)';
-          pill.style.background = 'rgba(255, 71, 87, 0.12)';
+          pill.style.color = '#ff6b6b';
+          pill.style.borderColor = '#ff6b6b';
+          pill.style.background = 'rgba(255, 107, 107, 0.15)';
         }
       }
 
@@ -848,7 +859,7 @@
         ctx.clearRect(0, 0, W, H);
 
         // Subtle background grid
-        ctx.strokeStyle = 'rgba(32, 42, 75, 0.4)';
+        ctx.strokeStyle = 'rgba(45, 106, 79, 0.25)';
         ctx.lineWidth = 1;
         for (let x = 40; x < W; x += 40) {
           ctx.beginPath();
@@ -865,12 +876,12 @@
 
         // Speed Boost Pads
         boostPads.forEach(pad => {
-          ctx.fillStyle = 'rgba(255, 165, 2, 0.15)';
-          ctx.strokeStyle = '#ffa502';
+          ctx.fillStyle = 'rgba(82, 183, 136, 0.2)';
+          ctx.strokeStyle = '#52b788';
           ctx.lineWidth = 1.5;
           ctx.fillRect(pad.x, pad.y, pad.w, pad.h);
           ctx.strokeRect(pad.x, pad.y, pad.w, pad.h);
-          ctx.fillStyle = '#ffa502';
+          ctx.fillStyle = '#b7e4c7';
           ctx.font = 'bold 16px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -880,7 +891,7 @@
         // Walls
         walls.forEach(w => {
           ctx.fillStyle = w.color;
-          ctx.strokeStyle = '#4a5d99';
+          ctx.strokeStyle = '#2d6a4f';
           ctx.lineWidth = 2;
           ctx.fillRect(w.x, w.y, w.w, w.h);
           ctx.strokeRect(w.x, w.y, w.w, w.h);
@@ -894,15 +905,15 @@
           // Glow halo
           ctx.beginPath();
           ctx.arc(orb.x, orb.y, r + 6, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+          ctx.fillStyle = 'rgba(116, 198, 157, 0.35)';
           ctx.fill();
 
           // Core gem
           ctx.beginPath();
           ctx.arc(orb.x, orb.y, r, 0, Math.PI * 2);
-          ctx.fillStyle = '#ffd32a';
+          ctx.fillStyle = '#74c69d';
           ctx.fill();
-          ctx.strokeStyle = '#fff';
+          ctx.strokeStyle = '#d8f3dc';
           ctx.lineWidth = 1.5;
           ctx.stroke();
         });
