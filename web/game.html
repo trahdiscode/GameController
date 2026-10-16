@@ -7,18 +7,20 @@
   <!-- Neon Tilt Arena -->
   <style>
     :root {
-      --bg: #F7F4EE;
-      --card-bg: #FFFFFF;
-      --border: #E5DDD1;
-      --text: #241C16;
-      --muted: #7E6D5E;
-      --surface-subtle: #F0EAE1;
+      --bg: #110E0C;             /* Deep obsidian espresso black */
+      --card-bg: #1C1714;        /* Solid dark roasted walnut */
+      --surface-subtle: #241E1A; /* Elevated tactile dark surface */
+      --border: #382C24;         /* Rich warm brown hairline border */
+      --border-subtle: #2A211B;  /* Deeper border */
+      --text: #FAF6F0;           /* Crisp warm ivory white */
+      --muted: #A8988B;          /* Soft hazelnut taupe */
+      --dim: #6E5F53;            /* Dim espresso tone */
 
-      --p1: #241C16;
-      --p2: #9E5633;
-      --p3: #B87E4C;
-      --p4: #665243;
-      --kb: #8C7C70;
+      --p1: #FFFFFF;             /* Player 1: Brilliant Pure White */
+      --p2: #D9825B;             /* Player 2: Terracotta Sienna */
+      --p3: #E3B382;             /* Player 3: Warm Caramel Amber */
+      --p4: #9C7A63;             /* Player 4: Roasted Mocha */
+      --kb: #B3A497;             /* KB: Slate Taupe */
     }
     * { box-sizing: border-box; }
     body {
@@ -45,7 +47,7 @@
       border-radius: 12px;
       padding: 14px 20px;
       gap: 16px;
-      box-shadow: 0 2px 10px rgba(45, 30, 20, 0.04);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
     }
     .room-info-group {
       display: flex;
@@ -55,14 +57,14 @@
     .qr-container {
       width: 88px;
       height: 88px;
-      background: #FFFFFF;
-      padding: 4px;
+      background: #FAF6F0;
+      padding: 5px;
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       border: 1px solid var(--border);
-      box-shadow: 0 1px 4px rgba(40, 25, 15, 0.04);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
       flex-shrink: 0;
     }
     .qr-img {
@@ -98,7 +100,7 @@
     }
     .url-text:hover {
       text-decoration: underline;
-      color: var(--text);
+      color: #FFFFFF;
     }
     .server-status-pill {
       display: inline-flex;
@@ -140,7 +142,7 @@
       transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 1px 4px rgba(45, 30, 20, 0.03);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     }
     .player-card::before {
       content: '';
@@ -151,10 +153,10 @@
     }
     .player-card.active {
       border-color: var(--p-col, var(--text));
-      box-shadow: 0 2px 10px rgba(45, 30, 20, 0.06);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
     }
     .player-card.offline {
-      opacity: 0.45;
+      opacity: 0.4;
     }
     .player-card-header {
       display: flex;
@@ -173,10 +175,10 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #A89B8D;
+      background: #54463C;
     }
     .player-card.active .player-conn-dot {
-      background: #2E7D32;
+      background: #4ADE80;
     }
     .player-stats-row {
       display: flex;
@@ -196,7 +198,7 @@
       font-weight: 600;
     }
     .player-latency.none {
-      color: #A89B8D;
+      color: #54463C;
     }
     /* Game Canvas */
     .canvas-wrap {
@@ -206,14 +208,14 @@
       border-radius: 12px;
       overflow: hidden;
       border: 1px solid var(--border);
-      box-shadow: 0 3px 16px rgba(45, 30, 20, 0.05);
-      background: #FDFBF7;
+      box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6);
+      background: #14100D;
     }
     canvas {
       display: block;
       width: 100%;
       height: auto;
-      background: #FDFBF7;
+      background: #14100D;
     }
     .instructions-bar {
       margin-top: 12px;
@@ -227,14 +229,14 @@
       flex-wrap: wrap;
     }
     .instructions-bar kbd {
-      background: #FFFFFF;
-      border: 1px solid var(--border);
+      background: #241E1A;
+      border: 1px solid #42352B;
       color: var(--text);
       padding: 2px 7px;
       border-radius: 6px;
       font-size: 12px;
       font-family: monospace;
-      box-shadow: 0 1px 2px rgba(40, 25, 15, 0.04);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     }
   </style>
 </head>
@@ -340,16 +342,16 @@
       const H = canvas.height;
       const BALL_RADIUS = 16;
 
-      // Color scheme: Organic architectural tones (Browns & Warm Slate)
+      // Color scheme: Dark Mode - Brown, Black and White
       const COLORS = {
-        0: '#8C7C70', // Slate Taupe (KB)
-        1: '#241C16', // Deep Espresso (P1)
-        2: '#9E5633', // Terracotta (P2)
-        3: '#B87E4C', // Caramel Amber (P3)
-        4: '#665243'  // Roasted Umber (P4)
+        0: '#B3A497', // Slate Taupe (KB)
+        1: '#FFFFFF', // Pure White (P1)
+        2: '#D9825B', // Terracotta Sienna (P2)
+        3: '#E3B382', // Warm Caramel (P3)
+        4: '#9C7A63'  // Roasted Mocha (P4)
       };
 
-      // Sound synthesizer (Web Audio API) - Warm wooden acoustic tones
+      // Sound synthesizer (Web Audio API) - Warm acoustic wood tones
       let audioCtx = null;
       function playTone(freq, type, duration) {
         try {
@@ -392,14 +394,14 @@
         return players[id];
       }
 
-      // Arena Obstacles / Walls - Dark Espresso timber
+      // Arena Obstacles / Walls - Deep Roasted Espresso Walnut Timber
       const walls = [
-        { x: 220, y: 100, w: 28, h: 180, color: '#2C2017' },
-        { x: 712, y: 260, w: 28, h: 180, color: '#2C2017' },
-        { x: 380, y: 180, w: 200, h: 26, color: '#2C2017' },
-        { x: 380, y: 334, w: 200, h: 26, color: '#2C2017' },
-        { x: 120, y: 380, w: 140, h: 26, color: '#2C2017' },
-        { x: 700, y: 130, w: 140, h: 26, color: '#2C2017' }
+        { x: 220, y: 100, w: 28, h: 180, color: '#261F1A' },
+        { x: 712, y: 260, w: 28, h: 180, color: '#261F1A' },
+        { x: 380, y: 180, w: 200, h: 26, color: '#261F1A' },
+        { x: 380, y: 334, w: 200, h: 26, color: '#261F1A' },
+        { x: 120, y: 380, w: 140, h: 26, color: '#261F1A' },
+        { x: 700, y: 130, w: 140, h: 26, color: '#261F1A' }
       ];
 
       // Speed Boost Pads
@@ -475,22 +477,22 @@
         }
       }
 
-      // UI Server Status
+      // UI Server Status (Dark Mode)
       function setServerStatus(text, type) {
         const pill = $('server-status');
         $('server-status-text').textContent = `Server: ${text}`;
         if (type === 'ok') {
-          pill.style.color = '#2E7D32';
-          pill.style.borderColor = '#C8E6C9';
-          pill.style.background = '#E8F5E9';
+          pill.style.color = '#4ADE80';
+          pill.style.borderColor = '#234928';
+          pill.style.background = 'rgba(74, 222, 128, 0.12)';
         } else if (type === 'warn') {
-          pill.style.color = '#9E5633';
-          pill.style.borderColor = '#F5D5C6';
-          pill.style.background = '#FDF3EE';
+          pill.style.color = '#E3B382';
+          pill.style.borderColor = '#543D28';
+          pill.style.background = 'rgba(227, 179, 130, 0.12)';
         } else {
-          pill.style.color = '#C62828';
-          pill.style.borderColor = '#FFCDD2';
-          pill.style.background = '#FFEBEE';
+          pill.style.color = '#F87171';
+          pill.style.borderColor = '#5C2424';
+          pill.style.background = 'rgba(248, 113, 113, 0.12)';
         }
       }
 
@@ -846,12 +848,12 @@
         requestAnimationFrame(gameLoop);
       }
 
-      // Drawing function: Minimal Brown and White Editorial Aesthetic
+      // Drawing function: Minimal Dark Mode - Brown, Black and White Aesthetic
       function drawArena() {
         ctx.clearRect(0, 0, W, H);
 
-        // Subtle architectural grid (warm hairline ticks)
-        ctx.strokeStyle = 'rgba(70, 48, 30, 0.05)';
+        // Subtle architectural grid (warm ivory hairline ticks on dark arena floor)
+        ctx.strokeStyle = 'rgba(250, 246, 240, 0.04)';
         ctx.lineWidth = 1;
         for (let x = 40; x < W; x += 40) {
           ctx.beginPath();
@@ -868,32 +870,32 @@
 
         // Speed Boost Pads (warm terracotta arrow plates)
         boostPads.forEach(pad => {
-          ctx.fillStyle = 'rgba(158, 86, 51, 0.08)';
-          ctx.strokeStyle = '#9E5633';
+          ctx.fillStyle = 'rgba(217, 130, 91, 0.12)';
+          ctx.strokeStyle = '#D9825B';
           ctx.lineWidth = 1.5;
           ctx.fillRect(pad.x, pad.y, pad.w, pad.h);
           ctx.strokeRect(pad.x, pad.y, pad.w, pad.h);
-          ctx.fillStyle = '#9E5633';
+          ctx.fillStyle = '#D9825B';
           ctx.font = 'bold 15px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(pad.label, pad.x + pad.w / 2, pad.y + pad.h / 2);
         });
 
-        // Walls (Architectural Timber / Espresso bevel)
+        // Walls (Architectural Timber / Roasted Walnut with top highlight)
         walls.forEach(w => {
           ctx.fillStyle = w.color;
           ctx.fillRect(w.x, w.y, w.w, w.h);
-          // Clean top bevel / architectural highlight
-          ctx.fillStyle = '#453326';
+          // Clean top bevel / architectural wood highlight
+          ctx.fillStyle = '#453830';
           ctx.fillRect(w.x, w.y, w.w, 3);
           // Crisp hairline border
-          ctx.strokeStyle = '#1C130D';
+          ctx.strokeStyle = '#382C24';
           ctx.lineWidth = 1;
           ctx.strokeRect(w.x, w.y, w.w, w.h);
         });
 
-        // Collectible Gems / Relics (Amber gold diamond core with white highlight)
+        // Collectible Gems / Relics (Warm Amber gold diamond core with white highlight)
         orbs.forEach(orb => {
           const pulse = Math.sin(orb.phase) * 2;
           const r = 7 + pulse;
@@ -901,13 +903,13 @@
           // Warm soft aura
           ctx.beginPath();
           ctx.arc(orb.x, orb.y, r + 5, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(184, 126, 76, 0.16)';
+          ctx.fillStyle = 'rgba(227, 179, 130, 0.22)';
           ctx.fill();
 
           // Core gem
           ctx.beginPath();
           ctx.arc(orb.x, orb.y, r, 0, Math.PI * 2);
-          ctx.fillStyle = '#B87E4C';
+          ctx.fillStyle = '#E3B382';
           ctx.fill();
           ctx.strokeStyle = '#FFFFFF';
           ctx.lineWidth = 1.5;
@@ -945,7 +947,7 @@
 
         // Players (Polished physical marble spheres)
         for (const p of Object.values(players)) {
-          const color = COLORS[p.id] || '#241C16';
+          const color = COLORS[p.id] || '#FFFFFF';
           const hopOffset = p.hop * 35;
           const scale = 1 + p.hop * 0.35;
           const r = BALL_RADIUS * scale;
@@ -958,28 +960,42 @@
             ctx.beginPath();
             ctx.arc(t.x, t.y, BALL_RADIUS * 0.55 * t.life, 0, Math.PI * 2);
             ctx.fillStyle = color;
-            ctx.globalAlpha = (p.on ? 0.22 : 0.08) * t.life;
+            ctx.globalAlpha = (p.on ? 0.25 : 0.08) * t.life;
             ctx.fill();
           });
           ctx.globalAlpha = p.on ? 1.0 : 0.35;
 
-          // Soft organic ground shadow
+          // Deep tactile ground shadow
           ctx.beginPath();
           ctx.ellipse(p.x, p.y + 6, BALL_RADIUS * (1 - p.hop * 0.3), BALL_RADIUS * 0.45 * (1 - p.hop * 0.3), 0, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(40, 28, 20, 0.18)';
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
           ctx.fill();
 
           // Marble body (elevated if hopping)
           const by = p.y - hopOffset;
 
           // Natural marble sphere with white specular highlight
-          const grad = ctx.createRadialGradient(
-            p.x - r * 0.35, by - r * 0.35, r * 0.08,
-            p.x, by, r
-          );
-          grad.addColorStop(0, '#FFFFFF');
-          grad.addColorStop(0.3, color);
-          grad.addColorStop(1, '#1A120D');
+          let grad;
+          if (p.id === 1 || color === '#FFFFFF') {
+            // Brilliant pure white marble sphere with walnut shading
+            grad = ctx.createRadialGradient(
+              p.x - r * 0.35, by - r * 0.35, r * 0.08,
+              p.x, by, r
+            );
+            grad.addColorStop(0, '#FFFFFF');
+            grad.addColorStop(0.45, '#F5EDE4');
+            grad.addColorStop(0.8, '#59463B');
+            grad.addColorStop(1, '#18120E');
+          } else {
+            // Warm earth/brown tones with bright white specular shine
+            grad = ctx.createRadialGradient(
+              p.x - r * 0.35, by - r * 0.35, r * 0.08,
+              p.x, by, r
+            );
+            grad.addColorStop(0, '#FFFFFF');
+            grad.addColorStop(0.3, color);
+            grad.addColorStop(1, '#0F0B09');
+          }
 
           ctx.beginPath();
           ctx.arc(p.x, by, r, 0, Math.PI * 2);
@@ -989,8 +1005,8 @@
           ctx.lineWidth = 1.2;
           ctx.stroke();
 
-          // Player Tag Label
-          ctx.fillStyle = '#FFFFFF';
+          // Player Tag Label (Crisp contrast: dark on white sphere, white on others)
+          ctx.fillStyle = (p.id === 1 || color === '#FFFFFF') ? '#1C1714' : '#FFFFFF';
           ctx.font = 'bold 11px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -1020,7 +1036,7 @@
               deck: '⌨️ Deck'
             };
             statusEl.textContent = (p.mode && modeIcons[p.mode]) ? modeIcons[p.mode] : 'Connected';
-            statusEl.style.color = '#2E7D32';
+            statusEl.style.color = '#4ADE80';
             scoreEl.textContent = `${p.score} pts`;
             if (p.rtt != null) {
               rttEl.textContent = `${p.rtt} ms`;
@@ -1047,7 +1063,7 @@
           cardKb.classList.add('active');
           cardKb.classList.remove('offline');
           $('status-kb').textContent = 'Active';
-          $('status-kb').style.color = '#2E7D32';
+          $('status-kb').style.color = '#4ADE80';
           $('score-kb').textContent = `${kb.score} pts`;
         }
       }, 250);
