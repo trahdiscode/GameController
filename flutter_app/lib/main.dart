@@ -8,40 +8,40 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 // ══════════════════════════════════════════════════════════════════════════════
-// PALETTE: Pure Neumorphism (Minimal & Premium Monochromatic White & Grey)
+// NEUMORPHIC THEME SYSTEM (Light & Dark Soft UI Architecture)
 // ══════════════════════════════════════════════════════════════════════════════
-class PureNeu {
-  // Base Canvas & Neutral Surfaces (Clean, satin matte finish)
-  static const Color bg           = Color(0xFFE9EDF2);
-  static const Color surface      = Color(0xFFE9EDF2);
-  static const Color surfaceLight = Color(0xFFFFFFFF);
-  static const Color surfaceDark  = Color(0xFFDFE4EC);
+class NeuTheme {
+  final bool isDark;
 
-  // Soft Slate Ambient Shadows (Minimal, translucent, zero harsh black)
-  static const Color shadowWhite   = Color(0xFFFFFFFF);
-  static const Color shadowDiffuse = Color(0x1A2D3E50); // ~10% soft slate
-  static const Color shadowContact = Color(0x0E2D3E50); // ~5% contact shade
+  const NeuTheme({this.isDark = false});
+
+  // Base Canvas & Neutral Surfaces
+  Color get bg => isDark ? const Color(0xFF14171C) : const Color(0xFFE9EDF2);
+  Color get surface => isDark ? const Color(0xFF1A1D23) : const Color(0xFFE9EDF2);
+  Color get surfaceLight => isDark ? const Color(0xFF242831) : const Color(0xFFFFFFFF);
+  Color get surfaceDark => isDark ? const Color(0xFF111317) : const Color(0xFFDFE4EC);
+
+  // Soft Ambient Shadows (Light Source: Top-Left)
+  Color get shadowLight => isDark ? const Color(0x1AFFFFFF) : const Color(0xF5FFFFFF);
+  Color get shadowDiffuse => isDark ? const Color(0x80000000) : const Color(0x1A2D3E50);
+  Color get shadowContact => isDark ? const Color(0x40000000) : const Color(0x0E2D3E50);
 
   // Carved / Recessed Wells
-  static const Color wellBg        = Color(0xFFE1E6EE);
-  static const Color wellInnerDark = Color(0x142D3E50);
+  Color get wellBg => isDark ? const Color(0xFF101216) : const Color(0xFFE1E6EE);
+  Color get wellInnerDark => isDark ? const Color(0x99000000) : const Color(0x142D3E50);
 
-  // Monochromatic Grey Typography
-  static const Color textDark     = Color(0xFF1E293B); // Deep refined charcoal
-  static const Color textMedium   = Color(0xFF475569); // Slate grey
-  static const Color textMuted    = Color(0xFF64748B); // Cool grey
-  static const Color textLight    = Color(0xFF94A3B8); // Feather grey
+  // Monochromatic Typography & Details
+  Color get textPrimary => isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B);
+  Color get textSecondary => isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+  Color get textMuted => isDark ? const Color(0xFF64748B) : const Color(0xFF64748B);
+  Color get textLight => isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8);
 
-  // Status
-  static const Color dotConnected    = Color(0xFF22C55E);
-  static const Color dotDisconnected = Color(0xFFEF4444);
-}
+  // Status Dots
+  Color get dotConnected => const Color(0xFF22C55E);
+  Color get dotDisconnected => const Color(0xFFEF4444);
 
-// ══════════════════════════════════════════════════════════════════════════════
-// MINIMAL & PREMIUM NEUMORPHIC DECORATION SYSTEM
-// ══════════════════════════════════════════════════════════════════════════════
-class NeuDecor {
-  static BoxDecoration raised({
+  // Raised / Extruded Plate Decoration
+  BoxDecoration raised({
     double radius = 18,
     BoxShape shape = BoxShape.rectangle,
     Color? surfaceColor,
@@ -50,7 +50,7 @@ class NeuDecor {
     double blur = 14.0,
     Gradient? gradient,
   }) {
-    final base = surfaceColor ?? PureNeu.surface;
+    final base = surfaceColor ?? surface;
     return BoxDecoration(
       shape: shape,
       borderRadius: shape == BoxShape.circle ? null : BorderRadius.circular(radius),
@@ -60,35 +60,32 @@ class NeuDecor {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              PureNeu.surfaceLight.withOpacity(0.9),
+              surfaceLight.withOpacity(isDark ? 0.35 : 0.9),
               base,
-              PureNeu.surfaceDark,
+              surfaceDark,
             ],
             stops: const [0.0, 0.5, 1.0],
           ),
       border: border ??
           Border.all(
-            color: Colors.white.withOpacity(0.4),
+            color: (isDark ? Colors.white.withOpacity(0.06) : Colors.white.withOpacity(0.4)),
             width: 0.5,
           ),
       boxShadow: [
-        // Top-left soft specular glow
         BoxShadow(
-          color: PureNeu.shadowWhite.withOpacity(0.95),
+          color: shadowLight,
           offset: Offset(-distance, -distance),
           blurRadius: blur,
           spreadRadius: 0,
         ),
-        // Bottom-right wide soft ambient shadow
         BoxShadow(
-          color: PureNeu.shadowDiffuse,
+          color: shadowDiffuse,
           offset: Offset(distance, distance),
           blurRadius: blur,
           spreadRadius: 0,
         ),
-        // Bottom-right subtle contact shadow
         BoxShadow(
-          color: PureNeu.shadowContact,
+          color: shadowContact,
           offset: Offset(distance * 0.4, distance * 0.4),
           blurRadius: blur * 0.35,
           spreadRadius: 0,
@@ -97,7 +94,8 @@ class NeuDecor {
     );
   }
 
-  static BoxDecoration recessed({
+  // Recessed / Carved Well Decoration
+  BoxDecoration recessed({
     double radius = 16,
     BoxShape shape = BoxShape.rectangle,
     Color? wellColor,
@@ -105,7 +103,7 @@ class NeuDecor {
     double distance = 3.0,
     double blur = 7.0,
   }) {
-    final base = wellColor ?? PureNeu.wellBg;
+    final base = wellColor ?? wellBg;
     return BoxDecoration(
       shape: shape,
       borderRadius: shape == BoxShape.circle ? null : BorderRadius.circular(radius),
@@ -113,27 +111,33 @@ class NeuDecor {
       gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [
-          const Color(0xFFD6DBE4),
-          base,
-          PureNeu.surfaceLight.withOpacity(0.7),
-        ],
+        colors: isDark
+            ? [
+                const Color(0xFF0A0C0F),
+                base,
+                const Color(0xFF1E2128),
+              ]
+            : [
+                const Color(0xFFD6DBE4),
+                base,
+                surfaceLight.withOpacity(0.7),
+              ],
         stops: const [0.0, 0.45, 1.0],
       ),
       border: border ??
           Border.all(
-            color: const Color(0xFFD0D6E0).withOpacity(0.8),
+            color: isDark ? const Color(0xFF252933) : const Color(0xFFD0D6E0).withOpacity(0.8),
             width: 0.8,
           ),
       boxShadow: [
         BoxShadow(
-          color: PureNeu.wellInnerDark,
+          color: wellInnerDark,
           offset: Offset(distance, distance),
           blurRadius: blur,
           spreadRadius: 0,
         ),
         BoxShadow(
-          color: PureNeu.shadowWhite.withOpacity(0.9),
+          color: shadowLight,
           offset: Offset(-distance, -distance),
           blurRadius: blur,
           spreadRadius: 0,
@@ -142,7 +146,8 @@ class NeuDecor {
     );
   }
 
-  static BoxDecoration pressed({
+  // Pressed / Depressed Plate Decoration
+  BoxDecoration pressed({
     double radius = 16,
     BoxShape shape = BoxShape.rectangle,
     Color? surfaceColor,
@@ -151,31 +156,37 @@ class NeuDecor {
     return BoxDecoration(
       shape: shape,
       borderRadius: shape == BoxShape.circle ? null : BorderRadius.circular(radius),
-      color: surfaceColor ?? PureNeu.wellBg,
-      gradient: const LinearGradient(
+      color: surfaceColor ?? wellBg,
+      gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [
-          Color(0xFFD3D8E2),
-          Color(0xFFDFE4ED),
-          Color(0xFFEEF2F8),
-        ],
-        stops: [0.0, 0.5, 1.0],
+        colors: isDark
+            ? const [
+                Color(0xFF090A0D),
+                Color(0xFF14171D),
+                Color(0xFF222630),
+              ]
+            : const [
+                Color(0xFFD3D8E2),
+                Color(0xFFDFE4ED),
+                Color(0xFFEEF2F8),
+              ],
+        stops: const [0.0, 0.5, 1.0],
       ),
       border: border ??
           Border.all(
-            color: const Color(0xFFC7CED8),
+            color: isDark ? const Color(0xFF282D37) : const Color(0xFFC7CED8),
             width: 0.8,
           ),
-      boxShadow: const [
+      boxShadow: [
         BoxShadow(
-          color: Color(0x182D3E50),
-          offset: Offset(2.0, 2.0),
+          color: isDark ? const Color(0x80000000) : const Color(0x182D3E50),
+          offset: const Offset(2.0, 2.0),
           blurRadius: 5.0,
         ),
         BoxShadow(
-          color: Color(0xE6FFFFFF),
-          offset: Offset(-2.0, -2.0),
+          color: isDark ? const Color(0x14FFFFFF) : const Color(0xE6FFFFFF),
+          offset: const Offset(-2.0, -2.0),
           blurRadius: 5.0,
         ),
       ],
@@ -187,6 +198,7 @@ class NeuDecor {
 // MINIMAL NEUMORPHIC BUTTON WIDGET
 // ══════════════════════════════════════════════════════════════════════════════
 class NeuButton extends StatefulWidget {
+  final NeuTheme theme;
   final VoidCallback? onTap;
   final Widget child;
   final double radius;
@@ -198,6 +210,7 @@ class NeuButton extends StatefulWidget {
 
   const NeuButton({
     super.key,
+    required this.theme,
     required this.child,
     this.onTap,
     this.radius = 12,
@@ -231,14 +244,14 @@ class _NeuButtonState extends State<NeuButton> {
         height: widget.height,
         padding: widget.padding,
         decoration: isDepressed
-            ? NeuDecor.pressed(
+            ? widget.theme.pressed(
                 radius: widget.radius,
                 shape: widget.shape,
                 border: widget.isSelected
-                    ? Border.all(color: PureNeu.textMedium.withOpacity(0.4), width: 1.0)
+                    ? Border.all(color: widget.theme.textSecondary.withOpacity(0.4), width: 1.0)
                     : null,
               )
-            : NeuDecor.raised(
+            : widget.theme.raised(
                 radius: widget.radius,
                 shape: widget.shape,
                 distance: 3.5,
@@ -260,18 +273,10 @@ class TiltArenaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Tilt Arena Controller',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.light().copyWith(
-        scaffoldBackgroundColor: PureNeu.bg,
-        colorScheme: const ColorScheme.light(
-          primary: PureNeu.textDark,
-          secondary: PureNeu.textMedium,
-          surface: PureNeu.surface,
-        ),
-      ),
-      home: const ControllerScreen(),
+      home: ControllerScreen(),
     );
   }
 }
@@ -284,6 +289,9 @@ class ControllerScreen extends StatefulWidget {
 }
 
 class _ControllerScreenState extends State<ControllerScreen> {
+  // Theme Mode State (Persisted)
+  bool _isDarkMode = false;
+
   // Input Controllers
   final TextEditingController _serverController = TextEditingController(text: '172.17.176.166:8000');
   final TextEditingController _codeController = TextEditingController();
@@ -294,7 +302,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   bool _isConnected = false;
   bool _isConnecting = false;
   String _statusText = 'Disconnected';
-  Color _statusColor = PureNeu.dotDisconnected;
+  Color _statusColor = const Color(0xFFEF4444);
   int _playerId = 0;
   int _rtt = 0;
   int _jumpCount = 0;
@@ -364,6 +372,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
     final savedCode = prefs.getString('room_code');
     final savedOffP = prefs.getDouble('offset_pitch');
     final savedOffR = prefs.getDouble('offset_roll');
+    final savedDarkMode = prefs.getBool('is_dark_mode');
 
     if (savedServer != null && savedServer.isNotEmpty) {
       _serverController.text = savedServer;
@@ -373,7 +382,16 @@ class _ControllerScreenState extends State<ControllerScreen> {
     }
     if (savedOffP != null) _offsetPitch = savedOffP;
     if (savedOffR != null) _offsetRoll = savedOffR;
+    if (savedDarkMode != null) _isDarkMode = savedDarkMode;
     setState(() {});
+  }
+
+  void _toggleDarkMode() async {
+    setState(() => _isDarkMode = !_isDarkMode);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_dark_mode', _isDarkMode);
+    _haptic(duration: 25);
+    _showToast(_isDarkMode ? 'Dark Mode' : 'Light Mode');
   }
 
   void _cycleOrientation() {
@@ -404,12 +422,13 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
   void _showToast(String msg) {
     if (!mounted) return;
+    final theme = NeuTheme(isDark: _isDarkMode);
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg, style: const TextStyle(color: PureNeu.textDark, fontWeight: FontWeight.bold)),
+        content: Text(msg, style: TextStyle(color: theme.textPrimary, fontWeight: FontWeight.bold)),
         duration: const Duration(seconds: 1),
-        backgroundColor: PureNeu.wellBg,
+        backgroundColor: theme.wellBg,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -524,10 +543,11 @@ class _ControllerScreenState extends State<ControllerScreen> {
     await prefs.setString('room_code', code);
 
     final urlStr = _buildWsUrl(server, code, _playerId);
+    final theme = NeuTheme(isDark: _isDarkMode);
     setState(() {
       _isConnecting = true;
       _statusText = 'Connecting...';
-      _statusColor = PureNeu.textMuted;
+      _statusColor = theme.textMuted;
     });
 
     try {
@@ -563,6 +583,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
     try {
       final msg = jsonDecode(data.toString());
       final type = msg['type'];
+      final theme = NeuTheme(isDark: _isDarkMode);
 
       if (type == 'hello') {
         setState(() {
@@ -571,7 +592,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
           _isConnecting = false;
           _reconnectAttempts = 0;
           _statusText = 'P$_playerId Connected';
-          _statusColor = PureNeu.dotConnected;
+          _statusColor = theme.dotConnected;
         });
         _haptic(duration: 80);
       } else if (type == 'pong') {
@@ -598,11 +619,12 @@ class _ControllerScreenState extends State<ControllerScreen> {
     _pingTimer?.cancel();
     _wsSubscription?.cancel();
     _channel?.sink.close();
+    final theme = NeuTheme(isDark: _isDarkMode);
     setState(() {
       _isConnected = false;
       _isConnecting = false;
       _statusText = 'Disconnected';
-      _statusColor = PureNeu.dotDisconnected;
+      _statusColor = theme.dotDisconnected;
     });
   }
 
@@ -612,11 +634,12 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
     if (_manualDisconnect) return;
 
+    final theme = NeuTheme(isDark: _isDarkMode);
     setState(() {
       _isConnected = false;
       _isConnecting = false;
       _statusText = 'Reconnecting...';
-      _statusColor = PureNeu.dotDisconnected;
+      _statusColor = theme.dotDisconnected;
     });
 
     _reconnectAttempts++;
@@ -689,28 +712,29 @@ class _ControllerScreenState extends State<ControllerScreen> {
   @override
   Widget build(BuildContext context) {
     _isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final theme = NeuTheme(isDark: _isDarkMode);
 
     return Scaffold(
-      backgroundColor: PureNeu.bg,
+      backgroundColor: theme.bg,
       body: SafeArea(
         child: Container(
-          color: PureNeu.bg,
+          color: theme.bg,
           child: Column(
             children: [
               // Pure Neumorphic Minimal Top Bar
-              _buildTopBar(),
+              _buildTopBar(theme),
 
               // Pure Neumorphic Setup Panel
-              if (!_isConnected) _buildSetupCard(),
+              if (!_isConnected) _buildSetupCard(theme),
 
               // Pure Neumorphic Mode Selector Tabs
-              _buildModeTabs(),
+              _buildModeTabs(theme),
 
               // Main Active Neumorphic View
               Expanded(
                 child: _selectedLayout == 0
-                    ? _buildMotionView()
-                    : (_selectedLayout == 1 ? _buildGamepadView() : _buildRacingView()),
+                    ? _buildMotionView(theme)
+                    : (_selectedLayout == 1 ? _buildGamepadView(theme) : _buildRacingView(theme)),
               ),
             ],
           ),
@@ -719,19 +743,19 @@ class _ControllerScreenState extends State<ControllerScreen> {
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar(NeuTheme theme) {
     final padVert = _isLandscape ? 6.0 : 8.0;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14, vertical: padVert),
-      color: PureNeu.bg,
+      color: theme.bg,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Neumorphic Connection Status Pill (Recessed well with minimal shadow)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: NeuDecor.recessed(radius: 20, distance: 2.0, blur: 5.0),
+            decoration: theme.recessed(radius: 20, distance: 2.0, blur: 5.0),
             child: Row(
               children: [
                 Container(
@@ -748,8 +772,8 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 const SizedBox(width: 8),
                 Text(
                   _statusText,
-                  style: const TextStyle(
-                    color: PureNeu.textDark,
+                  style: TextStyle(
+                    color: theme.textPrimary,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.3,
                     fontSize: 12,
@@ -759,11 +783,27 @@ class _ControllerScreenState extends State<ControllerScreen> {
             ),
           ),
 
-          // Actions Row (Orientation Lock, Invert Roll, Invert Pitch, Sensitivity, Latency, Disconnect)
+          // Actions Row (Dark Mode, Orientation Lock, Invert Roll, Invert Pitch, Sensitivity, Latency, Disconnect)
           Row(
             children: [
+              // Dark Mode / Light Mode Toggle
+              NeuButton(
+                theme: theme,
+                radius: 10,
+                padding: const EdgeInsets.all(7),
+                isSelected: _isDarkMode,
+                onTap: _toggleDarkMode,
+                child: Icon(
+                  _isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                  color: _isDarkMode ? const Color(0xFFFACC15) : theme.textPrimary,
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 6),
+
               // Screen Rotation Lock
               NeuButton(
+                theme: theme,
                 radius: 10,
                 padding: const EdgeInsets.all(7),
                 isSelected: _orientationMode != 0,
@@ -772,7 +812,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   _orientationMode == 1
                       ? Icons.stay_current_landscape
                       : (_orientationMode == 2 ? Icons.stay_current_portrait : Icons.screen_rotation),
-                  color: _orientationMode == 0 ? PureNeu.textMuted : PureNeu.textDark,
+                  color: _orientationMode == 0 ? theme.textMuted : theme.textPrimary,
                   size: 16,
                 ),
               ),
@@ -780,6 +820,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
               // Invert Steering (Roll)
               NeuButton(
+                theme: theme,
                 radius: 10,
                 padding: const EdgeInsets.all(7),
                 isSelected: _invertRoll,
@@ -789,7 +830,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 },
                 child: Icon(
                   Icons.swap_horiz,
-                  color: _invertRoll ? PureNeu.textDark : PureNeu.textMuted,
+                  color: _invertRoll ? theme.textPrimary : theme.textMuted,
                   size: 16,
                 ),
               ),
@@ -797,6 +838,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
               // Invert Pitch
               NeuButton(
+                theme: theme,
                 radius: 10,
                 padding: const EdgeInsets.all(7),
                 isSelected: _invertPitch,
@@ -806,7 +848,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 },
                 child: Icon(
                   Icons.swap_vert,
-                  color: _invertPitch ? PureNeu.textDark : PureNeu.textMuted,
+                  color: _invertPitch ? theme.textPrimary : theme.textMuted,
                   size: 16,
                 ),
               ),
@@ -814,6 +856,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
               // Sensitivity Quick Toggle
               NeuButton(
+                theme: theme,
                 radius: 10,
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
                 isSelected: _sensitivity > 1.0,
@@ -832,7 +875,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 child: Text(
                   '${_sensitivity}x',
                   style: TextStyle(
-                    color: _sensitivity > 1.0 ? PureNeu.textDark : PureNeu.textMedium,
+                    color: _sensitivity > 1.0 ? theme.textPrimary : theme.textSecondary,
                     fontWeight: FontWeight.w800,
                     fontSize: 11,
                   ),
@@ -843,11 +886,11 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 const SizedBox(width: 6),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  decoration: NeuDecor.recessed(radius: 10, distance: 2.0, blur: 5.0),
+                  decoration: theme.recessed(radius: 10, distance: 2.0, blur: 5.0),
                   child: Text(
                     '${_rtt}ms',
-                    style: const TextStyle(
-                      color: PureNeu.textDark,
+                    style: TextStyle(
+                      color: theme.textPrimary,
                       fontWeight: FontWeight.w800,
                       fontFamily: 'monospace',
                       fontSize: 11,
@@ -856,10 +899,11 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 ),
                 const SizedBox(width: 6),
                 NeuButton(
+                  theme: theme,
                   radius: 10,
                   padding: const EdgeInsets.all(7),
                   onTap: _disconnect,
-                  child: const Icon(Icons.power_settings_new, color: PureNeu.textMedium, size: 16),
+                  child: Icon(Icons.power_settings_new, color: theme.textSecondary, size: 16),
                 ),
               ],
             ],
@@ -869,30 +913,30 @@ class _ControllerScreenState extends State<ControllerScreen> {
     );
   }
 
-  Widget _buildSetupCard() {
+  Widget _buildSetupCard(NeuTheme theme) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 14, vertical: _isLandscape ? 4 : 8),
       padding: EdgeInsets.all(_isLandscape ? 10 : 14),
-      decoration: NeuDecor.raised(radius: 18, distance: 5.0, blur: 14.0),
+      decoration: theme.raised(radius: 18, distance: 5.0, blur: 14.0),
       child: Row(
         children: [
           // Neumorphic Input: Laptop IP
           Expanded(
             flex: 3,
             child: Container(
-              decoration: NeuDecor.recessed(radius: 12, distance: 2.5, blur: 6.0),
+              decoration: theme.recessed(radius: 12, distance: 2.5, blur: 6.0),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
               child: TextField(
                 controller: _serverController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Laptop IP : Port',
-                  labelStyle: TextStyle(color: PureNeu.textMuted, fontSize: 11, fontWeight: FontWeight.w600),
+                  labelStyle: TextStyle(color: theme.textMuted, fontSize: 11, fontWeight: FontWeight.w600),
                   isDense: true,
                   border: InputBorder.none,
                   hintText: '192.168.1.X:8000',
-                  hintStyle: TextStyle(color: PureNeu.textLight, fontSize: 12),
+                  hintStyle: TextStyle(color: theme.textLight, fontSize: 12),
                 ),
-                style: const TextStyle(color: PureNeu.textDark, fontSize: 13, fontWeight: FontWeight.w700),
+                style: TextStyle(color: theme.textPrimary, fontSize: 13, fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -902,23 +946,23 @@ class _ControllerScreenState extends State<ControllerScreen> {
           Expanded(
             flex: 2,
             child: Container(
-              decoration: NeuDecor.recessed(radius: 12, distance: 2.5, blur: 6.0),
+              decoration: theme.recessed(radius: 12, distance: 2.5, blur: 6.0),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
               child: TextField(
                 controller: _codeController,
                 keyboardType: TextInputType.number,
                 maxLength: 4,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Room Code',
-                  labelStyle: TextStyle(color: PureNeu.textMuted, fontSize: 11, fontWeight: FontWeight.w600),
+                  labelStyle: TextStyle(color: theme.textMuted, fontSize: 11, fontWeight: FontWeight.w600),
                   isDense: true,
                   counterText: '',
                   border: InputBorder.none,
                   hintText: '4-digits',
-                  hintStyle: TextStyle(color: PureNeu.textLight, fontSize: 12),
+                  hintStyle: TextStyle(color: theme.textLight, fontSize: 12),
                 ),
-                style: const TextStyle(
-                  color: PureNeu.textDark,
+                style: TextStyle(
+                  color: theme.textPrimary,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 2.5,
                   fontSize: 15,
@@ -930,13 +974,14 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
           // Neumorphic Connect CTA Button
           NeuButton(
+            theme: theme,
             radius: 12,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             onTap: _isConnecting ? null : _connect,
             child: Text(
               _isConnecting ? '...' : 'Connect',
-              style: const TextStyle(
-                color: PureNeu.textDark,
+              style: TextStyle(
+                color: theme.textPrimary,
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.5,
@@ -948,7 +993,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
     );
   }
 
-  Widget _buildModeTabs() {
+  Widget _buildModeTabs(NeuTheme theme) {
     final modes = ['📱 Motion', '🎮 Gamepad', '🏎️ Wheel'];
     final tabHeight = _isLandscape ? 34.0 : 42.0;
 
@@ -956,7 +1001,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
       margin: EdgeInsets.symmetric(horizontal: 14, vertical: _isLandscape ? 4 : 6),
       height: tabHeight,
       padding: const EdgeInsets.all(3),
-      decoration: NeuDecor.recessed(radius: 14, distance: 2.0, blur: 5.0),
+      decoration: theme.recessed(radius: 14, distance: 2.0, blur: 5.0),
       child: Row(
         children: List.generate(modes.length, (idx) {
           final isSel = _selectedLayout == idx;
@@ -970,7 +1015,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 duration: const Duration(milliseconds: 160),
                 alignment: Alignment.center,
                 decoration: isSel
-                    ? NeuDecor.raised(
+                    ? theme.raised(
                         radius: 11,
                         distance: 3.0,
                         blur: 8.0,
@@ -979,7 +1024,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 child: Text(
                   modes[idx],
                   style: TextStyle(
-                    color: isSel ? PureNeu.textDark : PureNeu.textMuted,
+                    color: isSel ? theme.textPrimary : theme.textMuted,
                     fontWeight: isSel ? FontWeight.w900 : FontWeight.w600,
                     letterSpacing: 0.3,
                     fontSize: 12,
@@ -996,7 +1041,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   // ══════════════════════════════════════════════════════════════════════════
   // VIEW 1: PURE NEUMORPHIC MOTION & TILT (Minimal & Premium Soft Cockpit)
   // ══════════════════════════════════════════════════════════════════════════
-  Widget _buildMotionView() {
+  Widget _buildMotionView(NeuTheme theme) {
     final calRoll = _smoothRoll - _offsetRoll;
     final calPitch = _smoothPitch - _offsetPitch;
 
@@ -1016,13 +1061,13 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   flex: 3,
                   child: Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: NeuDecor.raised(radius: 20, distance: 5.0, blur: 14.0),
+                    decoration: theme.raised(radius: 20, distance: 5.0, blur: 14.0),
                     child: Row(
                       children: [
                         Expanded(
                           flex: 3,
                           child: Center(
-                            child: _buildSpiritLevelCircle(bubbleX, bubbleY, 120),
+                            child: _buildSpiritLevelCircle(bubbleX, bubbleY, 120, theme),
                           ),
                         ),
                         Expanded(
@@ -1030,18 +1075,19 @@ class _ControllerScreenState extends State<ControllerScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              _telemetryItem('Roll (Steer)', '${calRoll.toStringAsFixed(1)}°'),
-                              _telemetryItem('Pitch (Tilt)', '${calPitch.toStringAsFixed(1)}°'),
+                              _telemetryItem('Roll (Steer)', '${calRoll.toStringAsFixed(1)}°', theme),
+                              _telemetryItem('Pitch (Tilt)', '${calPitch.toStringAsFixed(1)}°', theme),
                               NeuButton(
+                                theme: theme,
                                 radius: 9,
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 onTap: _calibrateNeutral,
-                                child: const Row(
+                                child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.center_focus_strong, color: PureNeu.textDark, size: 13),
-                                    SizedBox(width: 4),
-                                    Text('Calibrate', style: TextStyle(color: PureNeu.textDark, fontSize: 11, fontWeight: FontWeight.bold)),
+                                    Icon(Icons.center_focus_strong, color: theme.textPrimary, size: 13),
+                                    const SizedBox(width: 4),
+                                    Text('Calibrate', style: TextStyle(color: theme.textPrimary, fontSize: 11, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                               ),
@@ -1058,7 +1104,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 // Right: Pure Neumorphic Giant Jump Target
                 Expanded(
                   flex: 2,
-                  child: _buildJumpButton(isFullHeight: true),
+                  child: _buildJumpButton(isFullHeight: true, theme: theme),
                 ),
               ],
             ),
@@ -1073,21 +1119,21 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: NeuDecor.raised(radius: 22, distance: 5.5, blur: 15.0),
+                    decoration: theme.raised(radius: 22, distance: 5.5, blur: 15.0),
                     child: Column(
                       children: [
                         Expanded(
                           child: Center(
-                            child: _buildSpiritLevelCircle(bubbleX, bubbleY, 160),
+                            child: _buildSpiritLevelCircle(bubbleX, bubbleY, 160, theme),
                           ),
                         ),
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _telemetryItem('Roll (Steer)', '${calRoll.toStringAsFixed(1)}°'),
-                            _telemetryItem('Pitch (Tilt)', '${calPitch.toStringAsFixed(1)}°'),
-                            _telemetryItem('Jumps', '$_jumpCount'),
+                            _telemetryItem('Roll (Steer)', '${calRoll.toStringAsFixed(1)}°', theme),
+                            _telemetryItem('Pitch (Tilt)', '${calPitch.toStringAsFixed(1)}°', theme),
+                            _telemetryItem('Jumps', '$_jumpCount', theme),
                           ],
                         ),
                       ],
@@ -1099,18 +1145,19 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
                 // Calibrate Neutral Button
                 NeuButton(
+                  theme: theme,
                   radius: 14,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   onTap: _calibrateNeutral,
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.center_focus_strong, color: PureNeu.textDark, size: 16),
-                      SizedBox(width: 8),
+                      Icon(Icons.center_focus_strong, color: theme.textPrimary, size: 16),
+                      const SizedBox(width: 8),
                       Text(
                         'Calibrate Neutral Angle',
                         style: TextStyle(
-                          color: PureNeu.textDark,
+                          color: theme.textPrimary,
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.5,
@@ -1126,7 +1173,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 SizedBox(
                   height: 90,
                   width: double.infinity,
-                  child: _buildJumpButton(isFullHeight: false),
+                  child: _buildJumpButton(isFullHeight: false, theme: theme),
                 ),
               ],
             ),
@@ -1136,12 +1183,14 @@ class _ControllerScreenState extends State<ControllerScreen> {
     );
   }
 
-  // Recessed Neumorphic Spirit Level Dish with Floating 3D White/Grey Pearl Bubble
-  Widget _buildSpiritLevelCircle(double bubbleX, double bubbleY, double size) {
+  // Recessed Neumorphic Spirit Level Dish with Floating 3D Bubble
+  Widget _buildSpiritLevelCircle(double bubbleX, double bubbleY, double size, NeuTheme theme) {
+    final ringColor = theme.isDark ? const Color(0xFF282D37) : const Color(0xFFC7D0DC);
+
     return Container(
       width: size,
       height: size,
-      decoration: NeuDecor.recessed(shape: BoxShape.circle, distance: 4.0, blur: 9.0),
+      decoration: theme.recessed(shape: BoxShape.circle, distance: 4.0, blur: 9.0),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -1151,7 +1200,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
             height: size * 0.70,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFC7D0DC), width: 0.8),
+              border: Border.all(color: ringColor, width: 0.8),
             ),
           ),
           Container(
@@ -1159,13 +1208,13 @@ class _ControllerScreenState extends State<ControllerScreen> {
             height: size * 0.38,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFBAC4D2), width: 0.8),
+              border: Border.all(color: ringColor.withOpacity(0.8), width: 0.8),
             ),
           ),
 
           // Engraved Crosshairs in Subtle Grey
-          Container(width: size * 0.85, height: 0.8, color: const Color(0xFFC7D0DC)),
-          Container(width: 0.8, height: size * 0.85, color: const Color(0xFFC7D0DC)),
+          Container(width: size * 0.85, height: 0.8, color: ringColor),
+          Container(width: 0.8, height: size * 0.85, color: ringColor),
 
           // 3D Extruded Pearl Level Bubble with Specular Highlight
           Transform.translate(
@@ -1173,26 +1222,32 @@ class _ControllerScreenState extends State<ControllerScreen> {
             child: Container(
               width: size * 0.19,
               height: size * 0.19,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
-                  center: Alignment(-0.35, -0.35),
-                  colors: [
-                    Color(0xFFFFFFFF),
-                    Color(0xFFE8EEF5),
-                    Color(0xFFC5CFDA),
-                  ],
-                  stops: [0.0, 0.55, 1.0],
+                  center: const Alignment(-0.35, -0.35),
+                  colors: theme.isDark
+                      ? const [
+                          Color(0xFFFFFFFF),
+                          Color(0xFF64748B),
+                          Color(0xFF1E293B),
+                        ]
+                      : const [
+                          Color(0xFFFFFFFF),
+                          Color(0xFFE8EEF5),
+                          Color(0xFFC5CFDA),
+                        ],
+                  stops: const [0.0, 0.55, 1.0],
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Color(0x202D3E50),
-                    offset: Offset(3.0, 3.0),
+                    color: theme.isDark ? const Color(0x60000000) : const Color(0x202D3E50),
+                    offset: const Offset(3.0, 3.0),
                     blurRadius: 6.0,
                   ),
                   BoxShadow(
-                    color: Color(0xA6FFFFFF),
-                    offset: Offset(-1.5, -1.5),
+                    color: theme.isDark ? const Color(0x26FFFFFF) : const Color(0xA6FFFFFF),
+                    offset: const Offset(-1.5, -1.5),
                     blurRadius: 3.0,
                   ),
                 ],
@@ -1205,7 +1260,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   }
 
   // Pure Neumorphic JUMP Button with Tactile Inset
-  Widget _buildJumpButton({required bool isFullHeight}) {
+  Widget _buildJumpButton({required bool isFullHeight, required NeuTheme theme}) {
     return GestureDetector(
       onTapDown: (_) {
         setState(() => _isJumpPressed = true);
@@ -1216,10 +1271,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
         decoration: _isJumpPressed
-            ? NeuDecor.pressed(
+            ? theme.pressed(
                 radius: 20,
               )
-            : NeuDecor.raised(
+            : theme.raised(
                 radius: 20,
                 distance: 5.5,
                 blur: 15.0,
@@ -1231,13 +1286,13 @@ class _ControllerScreenState extends State<ControllerScreen> {
             Text(
               'JUMP',
               style: TextStyle(
-                color: PureNeu.textDark,
+                color: theme.textPrimary,
                 fontSize: isFullHeight ? 28 : 25,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 4,
                 shadows: [
                   Shadow(
-                    color: Colors.white.withOpacity(0.9),
+                    color: theme.isDark ? Colors.black.withOpacity(0.8) : Colors.white.withOpacity(0.95),
                     offset: const Offset(1, 1),
                     blurRadius: 1,
                   ),
@@ -1245,10 +1300,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
               ),
             ),
             const SizedBox(height: 3),
-            const Text(
+            Text(
               'Shake phone or press',
               style: TextStyle(
-                color: PureNeu.textMuted,
+                color: theme.textMuted,
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
@@ -1260,18 +1315,18 @@ class _ControllerScreenState extends State<ControllerScreen> {
     );
   }
 
-  Widget _telemetryItem(String label, String val) {
+  Widget _telemetryItem(String label, String val, NeuTheme theme) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(color: PureNeu.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
+        Text(label, style: TextStyle(color: theme.textMuted, fontSize: 11, fontWeight: FontWeight.w600)),
         const SizedBox(height: 3),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: NeuDecor.recessed(radius: 8, distance: 2.0, blur: 5.0),
+          decoration: theme.recessed(radius: 8, distance: 2.0, blur: 5.0),
           child: Text(
             val,
-            style: const TextStyle(
-              color: PureNeu.textDark,
+            style: TextStyle(
+              color: theme.textPrimary,
               fontWeight: FontWeight.w900,
               fontFamily: 'monospace',
               fontSize: 14,
@@ -1285,19 +1340,19 @@ class _ControllerScreenState extends State<ControllerScreen> {
   // ══════════════════════════════════════════════════════════════════════════
   // VIEW 2: PURE NEUMORPHIC PRO GAMEPAD (Minimal Monochromatic)
   // ══════════════════════════════════════════════════════════════════════════
-  Widget _buildGamepadView() {
+  Widget _buildGamepadView(NeuTheme theme) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: _isLandscape ? 6.0 : 16.0),
       child: Row(
         children: [
           Expanded(
             child: Center(
-              child: _buildVirtualJoystick(),
+              child: _buildVirtualJoystick(theme),
             ),
           ),
           Expanded(
             child: Center(
-              child: _buildABXYDiamond(),
+              child: _buildABXYDiamond(theme),
             ),
           ),
         ],
@@ -1306,7 +1361,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   }
 
   // Neumorphic Concave Analog Stick Well with 3D Thumb Cap
-  Widget _buildVirtualJoystick() {
+  Widget _buildVirtualJoystick(NeuTheme theme) {
     final size = _isLandscape ? 130.0 : 150.0;
     final radius = size / 2.0;
 
@@ -1332,7 +1387,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
       child: Container(
         width: size,
         height: size,
-        decoration: NeuDecor.recessed(shape: BoxShape.circle, distance: 4.0, blur: 9.0),
+        decoration: theme.recessed(shape: BoxShape.circle, distance: 4.0, blur: 9.0),
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -1342,16 +1397,16 @@ class _ControllerScreenState extends State<ControllerScreen> {
               height: size * 0.35,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFC7D0DC), width: 0.8),
+                border: Border.all(color: theme.isDark ? const Color(0xFF282D37) : const Color(0xFFC7D0DC), width: 0.8),
               ),
             ),
-            // Tactile Convex Thumb Knob in Pure White/Grey
+            // Tactile Convex Thumb Knob
             Transform.translate(
               offset: Offset(_stickX * (radius * 0.65), _stickY * (radius * 0.65)),
               child: Container(
                 width: size * 0.40,
                 height: size * 0.40,
-                decoration: NeuDecor.raised(
+                decoration: theme.raised(
                   shape: BoxShape.circle,
                   distance: 3.5,
                   blur: 8.0,
@@ -1360,7 +1415,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   child: Container(
                     width: size * 0.16,
                     height: size * 0.16,
-                    decoration: NeuDecor.recessed(shape: BoxShape.circle, distance: 1.5, blur: 3.5),
+                    decoration: theme.recessed(shape: BoxShape.circle, distance: 1.5, blur: 3.5),
                   ),
                 ),
               ),
@@ -1371,8 +1426,8 @@ class _ControllerScreenState extends State<ControllerScreen> {
     );
   }
 
-  // Neumorphic ABXY Diamond Cluster in White & Grey
-  Widget _buildABXYDiamond() {
+  // Neumorphic ABXY Diamond Cluster
+  Widget _buildABXYDiamond(NeuTheme theme) {
     final size = _isLandscape ? 120.0 : 145.0;
 
     return SizedBox(
@@ -1381,16 +1436,16 @@ class _ControllerScreenState extends State<ControllerScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Positioned(top: 0, child: _gamepadBtn('Y')),
-          Positioned(bottom: 0, child: _gamepadBtn('A', action: _triggerJump)),
-          Positioned(left: 0, child: _gamepadBtn('X')),
-          Positioned(right: 0, child: _gamepadBtn('B')),
+          Positioned(top: 0, child: _gamepadBtn('Y', theme)),
+          Positioned(bottom: 0, child: _gamepadBtn('A', theme, action: _triggerJump)),
+          Positioned(left: 0, child: _gamepadBtn('X', theme)),
+          Positioned(right: 0, child: _gamepadBtn('B', theme)),
         ],
       ),
     );
   }
 
-  Widget _gamepadBtn(String label, {VoidCallback? action}) {
+  Widget _gamepadBtn(String label, NeuTheme theme, {VoidCallback? action}) {
     final btnSize = _isLandscape ? 40.0 : 46.0;
     final isDown = _buttons[label] == 1;
 
@@ -1407,10 +1462,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
         width: btnSize,
         height: btnSize,
         decoration: isDown
-            ? NeuDecor.pressed(
+            ? theme.pressed(
                 shape: BoxShape.circle,
               )
-            : NeuDecor.raised(
+            : theme.raised(
                 shape: BoxShape.circle,
                 distance: 3.5,
                 blur: 8.0,
@@ -1419,12 +1474,12 @@ class _ControllerScreenState extends State<ControllerScreen> {
         child: Text(
           label,
           style: TextStyle(
-            color: PureNeu.textDark,
+            color: theme.textPrimary,
             fontWeight: FontWeight.w900,
             fontSize: btnSize * 0.42,
             shadows: [
               Shadow(
-                color: Colors.white.withOpacity(0.9),
+                color: theme.isDark ? Colors.black.withOpacity(0.8) : Colors.white.withOpacity(0.9),
                 offset: const Offset(1, 1),
                 blurRadius: 1,
               ),
@@ -1438,14 +1493,14 @@ class _ControllerScreenState extends State<ControllerScreen> {
   // ══════════════════════════════════════════════════════════════════════════
   // VIEW 3: PURE NEUMORPHIC RACING WHEEL (Tactile Hub & Tread Pedals)
   // ══════════════════════════════════════════════════════════════════════════
-  Widget _buildRacingView() {
+  Widget _buildRacingView(NeuTheme theme) {
     final wheelSize = _isLandscape ? 135.0 : 160.0;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: _isLandscape ? 6.0 : 16.0),
       child: Row(
         children: [
-          // Neumorphic Tactile Steering Wheel in White & Grey
+          // Neumorphic Tactile Steering Wheel
           Expanded(
             flex: 3,
             child: Center(
@@ -1464,7 +1519,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   child: Container(
                     width: wheelSize,
                     height: wheelSize,
-                    decoration: NeuDecor.raised(
+                    decoration: theme.raised(
                       shape: BoxShape.circle,
                       distance: 5.0,
                       blur: 14.0,
@@ -1473,18 +1528,18 @@ class _ControllerScreenState extends State<ControllerScreen> {
                       alignment: Alignment.center,
                       children: [
                         // Spokes
-                        Container(width: wheelSize * 0.75, height: 8, decoration: NeuDecor.recessed(radius: 4, distance: 1.5, blur: 4.0)),
-                        Container(width: 8, height: wheelSize * 0.4, margin: EdgeInsets.only(top: wheelSize * 0.35), decoration: NeuDecor.recessed(radius: 4, distance: 1.5, blur: 4.0)),
+                        Container(width: wheelSize * 0.75, height: 8, decoration: theme.recessed(radius: 4, distance: 1.5, blur: 4.0)),
+                        Container(width: 8, height: wheelSize * 0.4, margin: EdgeInsets.only(top: wheelSize * 0.35), decoration: theme.recessed(radius: 4, distance: 1.5, blur: 4.0)),
                         // Center Horn Hub
                         Container(
                           width: wheelSize * 0.4,
                           height: wheelSize * 0.4,
-                          decoration: NeuDecor.raised(
+                          decoration: theme.raised(
                             shape: BoxShape.circle,
                             distance: 3.5,
                             blur: 8.0,
                           ),
-                          child: const Icon(Icons.speed, size: 28, color: PureNeu.textDark),
+                          child: Icon(Icons.speed, size: 28, color: theme.textPrimary),
                         ),
                       ],
                     ),
@@ -1511,10 +1566,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 100),
                       decoration: _gasPedal > 0
-                          ? NeuDecor.pressed(
+                          ? theme.pressed(
                               radius: 14,
                             )
-                          : NeuDecor.raised(
+                          : theme.raised(
                               radius: 14,
                               distance: 4.0,
                               blur: 10.0,
@@ -1525,13 +1580,13 @@ class _ControllerScreenState extends State<ControllerScreen> {
                         children: [
                           Icon(
                             Icons.keyboard_arrow_up,
-                            color: _gasPedal > 0 ? PureNeu.textDark : PureNeu.textMedium,
+                            color: _gasPedal > 0 ? theme.textPrimary : theme.textSecondary,
                             size: 24,
                           ),
-                          const Text(
+                          Text(
                             'GAS',
                             style: TextStyle(
-                              color: PureNeu.textDark,
+                              color: theme.textPrimary,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 2.0,
                               fontSize: 15,
@@ -1556,10 +1611,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 100),
                       decoration: _brakePedal > 0
-                          ? NeuDecor.pressed(
+                          ? theme.pressed(
                               radius: 14,
                             )
-                          : NeuDecor.raised(
+                          : theme.raised(
                               radius: 14,
                               distance: 4.0,
                               blur: 10.0,
@@ -1570,14 +1625,14 @@ class _ControllerScreenState extends State<ControllerScreen> {
                         children: [
                           Icon(
                             Icons.pause,
-                            color: _brakePedal > 0 ? PureNeu.textDark : PureNeu.textMedium,
+                            color: _brakePedal > 0 ? theme.textPrimary : theme.textSecondary,
                             size: 20,
                           ),
                           const SizedBox(height: 2),
-                          const Text(
+                          Text(
                             'BRAKE',
                             style: TextStyle(
-                              color: PureNeu.textDark,
+                              color: theme.textPrimary,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 2.0,
                               fontSize: 15,
