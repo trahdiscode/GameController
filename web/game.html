@@ -35,6 +35,74 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
+    /* Professional Game Brand Header */
+    .brand-header {
+      width: 100%;
+      max-width: 980px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding: 0 4px;
+    }
+    .brand-identity {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: #1C1714;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+      flex-shrink: 0;
+    }
+    .brand-sphere-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #FFFFFF, #E3B382 45%, #18120E 100%);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+      display: block;
+    }
+    .brand-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .brand-title {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--text);
+      line-height: 1;
+      margin: 0;
+    }
+    .brand-caption {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0;
+    }
+    .brand-version-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 999px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
     .header-panel {
       display: flex;
       flex-wrap: wrap;
@@ -241,6 +309,20 @@
   </style>
 </head>
 <body>
+  <!-- Game Brand Header -->
+  <header class="brand-header">
+    <div class="brand-identity">
+      <div class="brand-mark">
+        <span class="brand-sphere-icon"></span>
+      </div>
+      <div class="brand-title-wrap">
+        <h1 class="brand-title">TILT ARENA</h1>
+        <p class="brand-caption">Real-Time Motion Controller Labyrinth</p>
+      </div>
+    </div>
+    <span class="brand-version-badge">v2.0 • Pro Edition</span>
+  </header>
+
   <!-- Header: Room info, QR, Server Connection Status -->
   <div class="header-panel">
     <div class="room-info-group">
