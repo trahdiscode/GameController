@@ -150,5 +150,14 @@ def qr(data: str):
     return Response(buf.getvalue(), media_type="image/svg+xml")
 
 
+@app.get("/apk")
+@app.get("/download")
+def download_apk():
+    apk_path = Path(__file__).resolve().parent.parent / "flutter_app" / "build" / "app" / "outputs" / "flutter-apk" / "app-debug.apk"
+    if apk_path.exists():
+        return FileResponse(apk_path, media_type="application/vnd.android.package-archive", filename="GameController.apk")
+    return Response("APK not built yet. Run 'flutter build apk' inside flutter_app directory.", status_code=404)
+
+
 # Must stay LAST: serves extra game/controller files (js, css, images) from web/
 app.mount("/", StaticFiles(directory=WEB), name="web")
