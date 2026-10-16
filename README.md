@@ -17,7 +17,7 @@ uvicorn server.server:app --host 0.0.0.0 --port 8000
 ```
 1. Laptop: open `http://localhost:8000`. It shows a **4-digit room code and a QR code**.
 2. Phone (same Wi-Fi), pick one:
-   - **APK (recommended):** enter `LAPTOP_IP:8000` and the code. Works over plain Wi-Fi.
+   - **APK (recommended):** Download directly from `http://<LAPTOP_IP>:8000/apk` (or build via `flutter build apk`). Open the app, enter `LAPTOP_IP:8000` and the 4-digit code. Works with zero setup over local Wi-Fi.
    - **Browser:** scan the QR. Phones only expose motion sensors on **HTTPS**, so tunnel first: `cloudflared tunnel --url http://localhost:8000`, then open the game via the tunnel URL so the QR points to it.
 3. Tap **Connect**. The first connect auto-calibrates. Re-tap **Calibrate** any time while holding the phone in your neutral pose.
 
