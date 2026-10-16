@@ -3,34 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Neon Tilt Arena</title>
+  <title>Tilt Arena</title>
+  <!-- Neon Tilt Arena -->
   <style>
     :root {
-      --frosted-mint: #d8f3dc;
-      --celadon: #b7e4c7;
-      --celadon-2: #95d5b2;
-      --mint-leaf: #74c69d;
-      --mint-leaf-2: #52b788;
-      --sea-green: #40916c;
-      --dark-emerald: #2d6a4f;
-      --pine-teal: #1b4332;
-      --evergreen: #081c15;
+      --bg: #F7F4EE;
+      --card-bg: #FFFFFF;
+      --border: #E5DDD1;
+      --text: #241C16;
+      --muted: #7E6D5E;
+      --surface-subtle: #F0EAE1;
 
-      --bg: #081c15;
-      --card-bg: #0e271d;
-      --border: #1b4332;
-      --text: #d8f3dc;
-      --muted: #74c69d;
-      --p1: #52b788;
-      --p2: #d8f3dc;
-      --p3: #74c69d;
-      --p4: #b7e4c7;
-      --kb: #ffffff;
+      --p1: #241C16;
+      --p2: #9E5633;
+      --p3: #B87E4C;
+      --p4: #665243;
+      --kb: #8C7C70;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 12px;
+      padding: 16px 12px;
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -49,10 +42,10 @@
       max-width: 980px;
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 12px 18px;
+      border-radius: 12px;
+      padding: 14px 20px;
       gap: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 20px rgba(45, 106, 79, 0.2);
+      box-shadow: 0 2px 10px rgba(45, 30, 20, 0.04);
     }
     .room-info-group {
       display: flex;
@@ -62,14 +55,14 @@
     .qr-container {
       width: 88px;
       height: 88px;
-      background: #ffffff;
+      background: #FFFFFF;
       padding: 4px;
-      border-radius: 10px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 10px rgba(82, 183, 136, 0.3);
-      border: 2px solid var(--mint-leaf-2);
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 4px rgba(40, 25, 15, 0.04);
       flex-shrink: 0;
     }
     .qr-img {
@@ -85,41 +78,40 @@
     .room-code-tag {
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 1.5px;
+      letter-spacing: 2px;
       text-transform: uppercase;
       color: var(--muted);
     }
     .room-code {
       font-size: 40px;
       font-weight: 900;
-      letter-spacing: 6px;
+      letter-spacing: 8px;
       font-family: monospace;
-      color: var(--frosted-mint);
+      color: var(--text);
       line-height: 1;
-      text-shadow: 0 0 16px rgba(82, 183, 136, 0.6);
     }
     .url-text {
       font-size: 12px;
-      color: var(--celadon-2);
+      color: var(--muted);
       text-decoration: none;
       word-break: break-all;
     }
     .url-text:hover {
       text-decoration: underline;
-      color: var(--frosted-mint);
+      color: var(--text);
     }
     .server-status-pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
+      gap: 7px;
+      padding: 6px 14px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.3px;
-      border: 1px solid var(--mint-leaf-2);
-      background: rgba(82, 183, 136, 0.15);
-      color: var(--frosted-mint);
+      border: 1px solid var(--border);
+      background: var(--surface-subtle);
+      color: var(--text);
       align-self: flex-start;
     }
     .server-dot {
@@ -127,7 +119,6 @@
       height: 7px;
       border-radius: 50%;
       background: currentColor;
-      box-shadow: 0 0 6px currentColor;
     }
     /* Players Scoreboard & Status Cards */
     .scoreboard {
@@ -136,33 +127,34 @@
       gap: 10px;
       width: 100%;
       max-width: 980px;
-      margin: 10px 0;
+      margin: 12px 0;
     }
     .player-card {
       background: var(--card-bg);
-      border: 1.5px solid var(--border);
-      border-radius: 14px;
-      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
       gap: 6px;
       transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 1px 4px rgba(45, 30, 20, 0.03);
     }
     .player-card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; bottom: 0;
       width: 4px;
-      background: var(--p-col, var(--mint-leaf));
+      background: var(--p-col, var(--text));
     }
     .player-card.active {
-      border-color: var(--p-col, var(--mint-leaf));
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3), 0 0 10px rgba(82, 183, 136, 0.2);
+      border-color: var(--p-col, var(--text));
+      box-shadow: 0 2px 10px rgba(45, 30, 20, 0.06);
     }
     .player-card.offline {
-      opacity: 0.55;
+      opacity: 0.45;
     }
     .player-card-header {
       display: flex;
@@ -178,14 +170,13 @@
       gap: 6px;
     }
     .player-conn-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: #444;
+      background: #A89B8D;
     }
     .player-card.active .player-conn-dot {
-      background: var(--mint-leaf-2);
-      box-shadow: 0 0 8px var(--mint-leaf-2);
+      background: #2E7D32;
     }
     .player-stats-row {
       display: flex;
@@ -196,36 +187,36 @@
     .player-score {
       font-size: 18px;
       font-weight: 800;
-      color: var(--frosted-mint);
+      color: var(--text);
     }
     .player-latency {
       font-family: monospace;
       font-size: 12px;
-      color: var(--mint-leaf-2);
+      color: var(--muted);
       font-weight: 600;
     }
     .player-latency.none {
-      color: var(--muted);
+      color: #A89B8D;
     }
     /* Game Canvas */
     .canvas-wrap {
       width: 100%;
       max-width: 980px;
       position: relative;
-      border-radius: 16px;
+      border-radius: 12px;
       overflow: hidden;
-      border: 1.5px solid var(--border);
-      box-shadow: 0 12px 36px rgba(0,0,0,0.6), 0 0 20px rgba(45, 106, 79, 0.3);
-      background: #081c15;
+      border: 1px solid var(--border);
+      box-shadow: 0 3px 16px rgba(45, 30, 20, 0.05);
+      background: #FDFBF7;
     }
     canvas {
       display: block;
       width: 100%;
       height: auto;
-      background: #081c15;
+      background: #FDFBF7;
     }
     .instructions-bar {
-      margin-top: 10px;
+      margin-top: 12px;
       font-size: 13px;
       color: var(--muted);
       text-align: center;
@@ -236,13 +227,14 @@
       flex-wrap: wrap;
     }
     .instructions-bar kbd {
-      background: #112c22;
-      border: 1px solid #2d6a4f;
-      color: var(--frosted-mint);
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      color: var(--text);
       padding: 2px 7px;
       border-radius: 6px;
       font-size: 12px;
       font-family: monospace;
+      box-shadow: 0 1px 2px rgba(40, 25, 15, 0.04);
     }
   </style>
 </head>
@@ -348,16 +340,16 @@
       const H = canvas.height;
       const BALL_RADIUS = 16;
 
-      // Color scheme
+      // Color scheme: Organic architectural tones (Browns & Warm Slate)
       const COLORS = {
-        0: '#ffffff',
-        1: '#52b788',
-        2: '#d8f3dc',
-        3: '#74c69d',
-        4: '#b7e4c7'
+        0: '#8C7C70', // Slate Taupe (KB)
+        1: '#241C16', // Deep Espresso (P1)
+        2: '#9E5633', // Terracotta (P2)
+        3: '#B87E4C', // Caramel Amber (P3)
+        4: '#665243'  // Roasted Umber (P4)
       };
 
-      // Sound synthesizer (Web Audio API)
+      // Sound synthesizer (Web Audio API) - Warm wooden acoustic tones
       let audioCtx = null;
       function playTone(freq, type, duration) {
         try {
@@ -400,14 +392,14 @@
         return players[id];
       }
 
-      // Arena Obstacles / Walls
+      // Arena Obstacles / Walls - Dark Espresso timber
       const walls = [
-        { x: 220, y: 100, w: 28, h: 180, color: '#1b4332' },
-        { x: 712, y: 260, w: 28, h: 180, color: '#1b4332' },
-        { x: 380, y: 180, w: 200, h: 26, color: '#1b4332' },
-        { x: 380, y: 334, w: 200, h: 26, color: '#1b4332' },
-        { x: 120, y: 380, w: 140, h: 26, color: '#1b4332' },
-        { x: 700, y: 130, w: 140, h: 26, color: '#1b4332' }
+        { x: 220, y: 100, w: 28, h: 180, color: '#2C2017' },
+        { x: 712, y: 260, w: 28, h: 180, color: '#2C2017' },
+        { x: 380, y: 180, w: 200, h: 26, color: '#2C2017' },
+        { x: 380, y: 334, w: 200, h: 26, color: '#2C2017' },
+        { x: 120, y: 380, w: 140, h: 26, color: '#2C2017' },
+        { x: 700, y: 130, w: 140, h: 26, color: '#2C2017' }
       ];
 
       // Speed Boost Pads
@@ -488,17 +480,17 @@
         const pill = $('server-status');
         $('server-status-text').textContent = `Server: ${text}`;
         if (type === 'ok') {
-          pill.style.color = 'var(--mint-leaf-2)';
-          pill.style.borderColor = 'var(--mint-leaf-2)';
-          pill.style.background = 'rgba(82, 183, 136, 0.16)';
+          pill.style.color = '#2E7D32';
+          pill.style.borderColor = '#C8E6C9';
+          pill.style.background = '#E8F5E9';
         } else if (type === 'warn') {
-          pill.style.color = '#ffa502';
-          pill.style.borderColor = '#ffa502';
-          pill.style.background = 'rgba(255, 165, 2, 0.15)';
+          pill.style.color = '#9E5633';
+          pill.style.borderColor = '#F5D5C6';
+          pill.style.background = '#FDF3EE';
         } else {
-          pill.style.color = '#ff6b6b';
-          pill.style.borderColor = '#ff6b6b';
-          pill.style.background = 'rgba(255, 107, 107, 0.15)';
+          pill.style.color = '#C62828';
+          pill.style.borderColor = '#FFCDD2';
+          pill.style.background = '#FFEBEE';
         }
       }
 
@@ -588,7 +580,7 @@
           if ((msg.buttons && (msg.buttons.B || msg.buttons.Nitro || msg.buttons.RT || msg.buttons.Boost)) || msg.turbo) {
             p.vx *= 1.03;
             p.vy *= 1.03;
-            addParticles(p.x, p.y, '#00d2ff', 2, 80);
+            addParticles(p.x, p.y, '#9E5633', 2, 80);
           }
 
           // Handbrake / Drift
@@ -732,7 +724,7 @@
             if (speed > 160 && (now - p.lastBounceVibe > 300)) {
               p.lastBounceVibe = now;
               send({ type: 'vib', to: p.id, ms: 40 });
-              addParticles(p.x, p.y, '#ffffff', 5, 80);
+              addParticles(p.x, p.y, '#C68A52', 5, 80);
               playTone(180, 'triangle', 0.08);
             }
           }
@@ -803,7 +795,7 @@
                 if (now - p.lastBounceVibe > 350) {
                   p.lastBounceVibe = now;
                   send({ type: 'vib', to: p.id, ms: 50 });
-                  addParticles(p.x, p.y, '#ffa502', 4, 100);
+                  addParticles(p.x, p.y, '#9E5633', 4, 100);
                 }
               }
             }
@@ -854,12 +846,12 @@
         requestAnimationFrame(gameLoop);
       }
 
-      // Drawing function
+      // Drawing function: Minimal Brown and White Editorial Aesthetic
       function drawArena() {
         ctx.clearRect(0, 0, W, H);
 
-        // Subtle background grid
-        ctx.strokeStyle = 'rgba(45, 106, 79, 0.25)';
+        // Subtle architectural grid (warm hairline ticks)
+        ctx.strokeStyle = 'rgba(70, 48, 30, 0.05)';
         ctx.lineWidth = 1;
         for (let x = 40; x < W; x += 40) {
           ctx.beginPath();
@@ -874,56 +866,66 @@
           ctx.stroke();
         }
 
-        // Speed Boost Pads
+        // Speed Boost Pads (warm terracotta arrow plates)
         boostPads.forEach(pad => {
-          ctx.fillStyle = 'rgba(82, 183, 136, 0.2)';
-          ctx.strokeStyle = '#52b788';
+          ctx.fillStyle = 'rgba(158, 86, 51, 0.08)';
+          ctx.strokeStyle = '#9E5633';
           ctx.lineWidth = 1.5;
           ctx.fillRect(pad.x, pad.y, pad.w, pad.h);
           ctx.strokeRect(pad.x, pad.y, pad.w, pad.h);
-          ctx.fillStyle = '#b7e4c7';
-          ctx.font = 'bold 16px sans-serif';
+          ctx.fillStyle = '#9E5633';
+          ctx.font = 'bold 15px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(pad.label, pad.x + pad.w / 2, pad.y + pad.h / 2);
         });
 
-        // Walls
+        // Walls (Architectural Timber / Espresso bevel)
         walls.forEach(w => {
           ctx.fillStyle = w.color;
-          ctx.strokeStyle = '#2d6a4f';
-          ctx.lineWidth = 2;
           ctx.fillRect(w.x, w.y, w.w, w.h);
+          // Clean top bevel / architectural highlight
+          ctx.fillStyle = '#453326';
+          ctx.fillRect(w.x, w.y, w.w, 3);
+          // Crisp hairline border
+          ctx.strokeStyle = '#1C130D';
+          ctx.lineWidth = 1;
           ctx.strokeRect(w.x, w.y, w.w, w.h);
         });
 
-        // Collectible Gems / Stars
+        // Collectible Gems / Relics (Amber gold diamond core with white highlight)
         orbs.forEach(orb => {
-          const pulse = Math.sin(orb.phase) * 3;
-          const r = 8 + pulse;
+          const pulse = Math.sin(orb.phase) * 2;
+          const r = 7 + pulse;
 
-          // Glow halo
+          // Warm soft aura
           ctx.beginPath();
-          ctx.arc(orb.x, orb.y, r + 6, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(116, 198, 157, 0.35)';
+          ctx.arc(orb.x, orb.y, r + 5, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(184, 126, 76, 0.16)';
           ctx.fill();
 
           // Core gem
           ctx.beginPath();
           ctx.arc(orb.x, orb.y, r, 0, Math.PI * 2);
-          ctx.fillStyle = '#74c69d';
+          ctx.fillStyle = '#B87E4C';
           ctx.fill();
-          ctx.strokeStyle = '#d8f3dc';
+          ctx.strokeStyle = '#FFFFFF';
           ctx.lineWidth = 1.5;
           ctx.stroke();
+
+          // Specular white center
+          ctx.beginPath();
+          ctx.arc(orb.x - 2, orb.y - 2, 2, 0, Math.PI * 2);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fill();
         });
 
-        // Shockwaves
+        // Shockwaves (Clean organic ripples)
         shockwaves.forEach(sw => {
           ctx.save();
-          ctx.globalAlpha = Math.max(0, sw.life);
+          ctx.globalAlpha = Math.max(0, sw.life * 0.7);
           ctx.strokeStyle = sw.color;
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
           ctx.stroke();
@@ -936,16 +938,16 @@
           ctx.globalAlpha = Math.max(0, pt.life);
           ctx.fillStyle = pt.color;
           ctx.beginPath();
-          ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+          ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         });
 
-        // Players
+        // Players (Polished physical marble spheres)
         for (const p of Object.values(players)) {
-          const color = COLORS[p.id] || '#ffffff';
+          const color = COLORS[p.id] || '#241C16';
           const hopOffset = p.hop * 35;
-          const scale = 1 + p.hop * 0.4;
+          const scale = 1 + p.hop * 0.35;
           const r = BALL_RADIUS * scale;
 
           ctx.save();
@@ -954,47 +956,41 @@
           // Motion trails
           p.trail.forEach(t => {
             ctx.beginPath();
-            ctx.arc(t.x, t.y, BALL_RADIUS * 0.65 * t.life, 0, Math.PI * 2);
+            ctx.arc(t.x, t.y, BALL_RADIUS * 0.55 * t.life, 0, Math.PI * 2);
             ctx.fillStyle = color;
-            ctx.globalAlpha = (p.on ? 0.35 : 0.1) * t.life;
+            ctx.globalAlpha = (p.on ? 0.22 : 0.08) * t.life;
             ctx.fill();
           });
           ctx.globalAlpha = p.on ? 1.0 : 0.35;
 
-          // Ball ground shadow
+          // Soft organic ground shadow
           ctx.beginPath();
-          ctx.ellipse(p.x, p.y + 6, BALL_RADIUS * (1 - p.hop * 0.3), BALL_RADIUS * 0.5 * (1 - p.hop * 0.3), 0, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+          ctx.ellipse(p.x, p.y + 6, BALL_RADIUS * (1 - p.hop * 0.3), BALL_RADIUS * 0.45 * (1 - p.hop * 0.3), 0, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(40, 28, 20, 0.18)';
           ctx.fill();
 
-          // Ball body (elevated if hopping)
+          // Marble body (elevated if hopping)
           const by = p.y - hopOffset;
 
-          // Glow outline
-          ctx.beginPath();
-          ctx.arc(p.x, by, r + 4, 0, Math.PI * 2);
-          ctx.fillStyle = `${color}33`;
-          ctx.fill();
-
-          // Sphere fill with light reflection
+          // Natural marble sphere with white specular highlight
           const grad = ctx.createRadialGradient(
-            p.x - r * 0.3, by - r * 0.3, r * 0.1,
+            p.x - r * 0.35, by - r * 0.35, r * 0.08,
             p.x, by, r
           );
-          grad.addColorStop(0, '#ffffff');
+          grad.addColorStop(0, '#FFFFFF');
           grad.addColorStop(0.3, color);
-          grad.addColorStop(1, '#000000');
+          grad.addColorStop(1, '#1A120D');
 
           ctx.beginPath();
           ctx.arc(p.x, by, r, 0, Math.PI * 2);
           ctx.fillStyle = grad;
           ctx.fill();
-          ctx.strokeStyle = '#ffffff';
+          ctx.strokeStyle = '#FFFFFF';
           ctx.lineWidth = 1.2;
           ctx.stroke();
 
           // Player Tag Label
-          ctx.fillStyle = '#ffffff';
+          ctx.fillStyle = '#FFFFFF';
           ctx.font = 'bold 11px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -1024,7 +1020,7 @@
               deck: '⌨️ Deck'
             };
             statusEl.textContent = (p.mode && modeIcons[p.mode]) ? modeIcons[p.mode] : 'Connected';
-            statusEl.style.color = '#2ed573';
+            statusEl.style.color = '#2E7D32';
             scoreEl.textContent = `${p.score} pts`;
             if (p.rtt != null) {
               rttEl.textContent = `${p.rtt} ms`;
@@ -1051,7 +1047,7 @@
           cardKb.classList.add('active');
           cardKb.classList.remove('offline');
           $('status-kb').textContent = 'Active';
-          $('status-kb').style.color = '#2ed573';
+          $('status-kb').style.color = '#2E7D32';
           $('score-kb').textContent = `${kb.score} pts`;
         }
       }, 250);
