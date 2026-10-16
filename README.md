@@ -21,6 +21,40 @@ uvicorn server.server:app --host 0.0.0.0 --port 8000
    - **Browser:** scan the QR. Phones only expose motion sensors on **HTTPS**, so tunnel first: `cloudflared tunnel --url http://localhost:8000`, then open the game via the tunnel URL so the QR points to it.
 3. Tap **Connect**. The first connect auto-calibrates. Re-tap **Calibrate** any time while holding the phone in your neutral pose.
 
+## 🎮 How to Play the Game
+
+> For the full player manual and advanced strategies, read the [Complete Gameplay Guide](GAMEPLAY_GUIDE.md).
+
+### 1. Objective & Scoring
+- **Objective:** Pilot your marble through the dark timber labyrinth to capture **Amber Relics (Star Gems)** before your opponents.
+- **Scoring:** Each collected relic grants **+10 points**.
+- **Respawn:** Relics instantly reappear in new random locations across the arena floor.
+
+### 2. Controls & Maneuvers
+- **Tilt Steering (Motion Mode):** Tilt your phone forward/back/left/right to roll and accelerate your marble.
+- **Jumping / Wall Hopping:**
+  - **Quick Shake:** Shake your phone upward to hop into the air.
+  - **JUMP Button:** Tap the large on-screen **JUMP** button.
+  - **Wall Skip:** While airborne (~600ms), your marble flies cleanly **over maze walls and obstacles** without taking collision damage!
+- **Speed Boost Pads (`▲` / `▼`):** Drive over terracotta arrow pads for rocket acceleration across corridors.
+- **Neutral Calibration:** Tap **Calibrate** at any moment while holding your phone comfortably to re-center your resting angle.
+
+### 3. Multiple Controller Modes
+Switch modes on your phone anytime from the top bar:
+- **📱 Motion & Tilt:** Gyroscope steering with artificial horizon, spirit level, and shake detection.
+- **🎮 Gamepad Pro:** 360° dual analog thumbsticks, 4-way D-Pad, ABXY buttons, Nitro boost (`RT`), and handbrake.
+- **🏎️ Racing Wheel:** On-screen touch steering wheel + gyro steering with progressive gas and brake pedals.
+- **🖱️ Trackpad & ⌨️ Action Deck:** Swipe pad steering or vertical throttle lever with macro triggers.
+- **💻 Keyboard Fallback (P0):** <kbd>▲</kbd> <kbd>◀</kbd> <kbd>▼</kbd> <kbd>▶</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to steer, <kbd>Spacebar</kbd> to jump.
+
+### 4. Local Multiplayer (Up to 4 Players)
+- Up to 4 phones can join a single room screen:
+  - **Player 1:** Pure White Marble (`P1`)
+  - **Player 2:** Terracotta Sienna Marble (`P2`)
+  - **Player 3:** Caramel Amber Marble (`P3`)
+  - **Player 4:** Roasted Mocha Marble (`P4`)
+- Live scoreboards at the top display real-time points, active controller mode, and live round-trip latency (<15ms).
+
 Controls & Layouts:
 - **🎮 Gamepad (Pro Console):** Dual 360° analog thumbsticks (L3/R3), 4-way D-Pad, ABXY diamond cluster, bumpers (LB/RB), triggers (LT/RT), Select, Start, Home, and Turbo toggle.
 - **🏎️ Racing Wheel:** Interactive touch steering wheel + physical gyro-tilt steering, progressive accelerator & brake pedals, Nitro boost, handbrake drift, and flappy paddle shifter.
