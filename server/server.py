@@ -153,10 +153,13 @@ def qr(data: str):
 @app.get("/apk")
 @app.get("/download")
 def download_apk():
-    apk_path = Path(__file__).resolve().parent.parent / "flutter_app" / "build" / "app" / "outputs" / "flutter-apk" / "app-debug.apk"
+    base = Path(__file__).resolve().parent.parent / "flutter_app" / "build" / "app" / "outputs" / "flutter-apk"
+    rel = base / "app-release.apk"
+    dbg = base / "app-debug.apk"
+    apk_path = rel if rel.exists() else dbg
     if apk_path.exists():
-        return FileResponse(apk_path, media_type="application/vnd.android.package-archive", filename="GameController.apk")
-    return Response("APK not built yet. Run 'flutter build apk' inside flutter_app directory.", status_code=404)
+        return FileResponse(apk_path, media_type="application/vnd.android.package-archive", filename="TiltArenaController.apk")
+    return Response("APK not built yet. Run 'flutter build apk --release' inside flutter_app directory.", status_code=404)
 
 
 # Must stay LAST: serves extra game/controller files (js, css, images) from web/
