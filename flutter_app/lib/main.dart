@@ -570,16 +570,19 @@ class _ControllerScreenState extends State<ControllerScreen> {
   }
 
   void _openQrScanner() {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _QrScannerSheet(
-        isDark: _isDarkMode,
-        onScanned: (val) {
-          Navigator.of(ctx).pop();
-          _onQrCodeScanned(val);
-        },
+      barrierDismissible: true,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        child: _QrScannerSheet(
+          isDark: _isDarkMode,
+          onScanned: (val) {
+            Navigator.of(ctx).pop();
+            _onQrCodeScanned(val);
+          },
+        ),
       ),
     );
   }
@@ -1936,11 +1939,14 @@ class _QrScannerSheet extends StatefulWidget {
   State<_QrScannerSheet> createState() => _QrScannerSheetState();
 }
 
+
 class _QrScannerSheetState extends State<_QrScannerSheet> {
   final MobileScannerController _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
   );
   bool _scanned = false;
+  // Default to 2 (180 deg) because Android CameraX landscape preview is inverted 180 deg
+  int _rotationQuarterTurns = 2;
 
   @override
   void dispose() {
@@ -1951,130 +1957,206 @@ class _QrScannerSheetState extends State<_QrScannerSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = widget.isDark ? NeuTheme.dark() : NeuTheme.light();
-    final sheetHeight = MediaQuery.of(context).size.height * 0.70;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
-    return Container(
-      height: sheetHeight,
-      decoration: BoxDecoration(
-        color: theme.bg,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 10),
-          Container(
-            width: 42,
-            height: 4,
-            decoration: BoxDecoration(
-              color: theme.textMuted.withOpacity(0.35),
-              borderRadius: BorderRadius.circular(2),
-            ),
+    return Center(
+      child: Container(
+        width: isLandscape ? 520 : double.infinity,
+        height: isLandscape ? 320 : 450,
+        decoration: BoxDecoration(
+          color: theme.bg,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: theme.isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.08),
+            width: 1,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.qr_code_scanner_rounded, color: theme.accent, size: 22),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Scan Room QR Code',
-                      style: TextStyle(
-                        color: theme.textPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    ValueListenableBuilder<MobileScannerState>(
-                      valueListenable: _controller,
-                      builder: (context, state, child) {
-                        final isTorchOn = state.torchState == TorchState.on;
-                        return IconButton(
-                          icon: Icon(
-                            isTorchOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
-                            color: isTorchOn ? theme.accent : theme.textMuted,
-                            size: 20,
-                          ),
-                          onPressed: () => _controller.toggleTorch(),
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close_rounded, color: theme.textMuted, size: 22),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-              ],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.6),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    MobileScanner(
-                      controller: _controller,
-                      errorBuilder: (context, error, child) {
-                        return Container(
-                          color: Colors.black54,
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.all(20),
-                          child: Text(
-                            'Camera error: ${error.errorCode.name}\nPlease check camera permissions.',
-                            style: TextStyle(color: theme.textMuted, fontSize: 13),
-                            textAlign: TextAlign.center,
-                          ),
-                        );
-                      },
-                      onDetect: (capture) {
-                        if (_scanned) return;
-                        for (final barcode in capture.barcodes) {
-                          final val = barcode.rawValue;
-                          if (val != null && val.trim().isNotEmpty) {
-                            _scanned = true;
-                            widget.onScanned(val.trim());
-                            break;
-                          }
-                        }
-                      },
-                    ),
-                    // Centered Reticle
-                    Container(
-                      width: 220,
-                      height: 220,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: theme.accent, width: 2.5),
-                        borderRadius: BorderRadius.circular(18),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Header Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.qr_code_scanner_rounded, color: theme.accent, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Scan Room QR Code',
+                        style: TextStyle(
+                          color: theme.textPrimary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Flashlight Toggle
+                      ValueListenableBuilder<MobileScannerState>(
+                        valueListenable: _controller,
+                        builder: (context, state, child) {
+                          final isTorchOn = state.torchState == TorchState.on;
+                          return IconButton(
+                            icon: Icon(
+                              isTorchOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
+                              color: isTorchOn ? const Color(0xFFFACC15) : theme.textMuted,
+                              size: 19,
+                            ),
+                            tooltip: isTorchOn ? 'Flashlight On' : 'Flashlight Off',
+                            onPressed: () => _controller.toggleTorch(),
+                          );
+                        },
+                      ),
+
+                      // Rotate / Flip Preview (Cycle 90 deg / 180 deg)
+                      IconButton(
+                        icon: Icon(
+                          Icons.rotate_right_rounded,
+                          color: _rotationQuarterTurns != 0 ? theme.accent : theme.textMuted,
+                          size: 20,
+                        ),
+                        tooltip: 'Rotate Camera (${_rotationQuarterTurns * 90}°)',
+                        onPressed: () {
+                          setState(() {
+                            _rotationQuarterTurns = (_rotationQuarterTurns + 1) % 4;
+                          });
+                          HapticFeedback.lightImpact();
+                        },
+                      ),
+
+                      // Switch Camera (Back / Front)
+                      IconButton(
+                        icon: Icon(Icons.flip_camera_ios_rounded, color: theme.textMuted, size: 18),
+                        tooltip: 'Switch Camera',
+                        onPressed: () => _controller.switchCamera(),
+                      ),
+
+                      // Close Dialog
+                      IconButton(
+                        icon: Icon(Icons.close_rounded, color: theme.textMuted, size: 20),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Camera Viewport
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Camera with applied rotation compensation
+                      RotatedBox(
+                        quarterTurns: _rotationQuarterTurns,
+                        child: MobileScanner(
+                          controller: _controller,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, child) {
+                            return Container(
+                              color: Colors.black87,
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.all(20),
+                              child: Text(
+                                'Camera error: ${error.errorCode.name}\nPlease verify camera permissions in settings.',
+                                style: TextStyle(color: theme.textMuted, fontSize: 12),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          },
+                          onDetect: (capture) {
+                            if (_scanned) return;
+                            for (final barcode in capture.barcodes) {
+                              final val = barcode.rawValue;
+                              if (val != null && val.trim().isNotEmpty) {
+                                _scanned = true;
+                                setState(() {});
+                                widget.onScanned(val.trim());
+                                break;
+                              }
+                            }
+                          },
+                        ),
+                      ),
+
+                      // Cyberpunk / Reticle Viewport Overlay
+                      Container(
+                        width: isLandscape ? 170 : 210,
+                        height: isLandscape ? 170 : 210,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: _scanned ? theme.dotConnected : theme.accent,
+                            width: 2.2,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: (_scanned ? theme.dotConnected : theme.accent).withOpacity(0.3),
+                              blurRadius: 12,
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            // 4 Corner Brackets
+                            Positioned(top: 4, left: 4, child: Container(width: 14, height: 2, color: theme.accent)),
+                            Positioned(top: 4, left: 4, child: Container(width: 2, height: 14, color: theme.accent)),
+
+                            Positioned(top: 4, right: 4, child: Container(width: 14, height: 2, color: theme.accent)),
+                            Positioned(top: 4, right: 4, child: Container(width: 2, height: 14, color: theme.accent)),
+
+                            Positioned(bottom: 4, left: 4, child: Container(width: 14, height: 2, color: theme.accent)),
+                            Positioned(bottom: 4, left: 4, child: Container(width: 2, height: 14, color: theme.accent)),
+
+                            Positioned(bottom: 4, right: 4, child: Container(width: 14, height: 2, color: theme.accent)),
+                            Positioned(bottom: 4, right: 4, child: Container(width: 2, height: 14, color: theme.accent)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
-            child: Text(
-              'Point camera at the QR code displayed on the laptop screen',
-              style: TextStyle(
-                color: theme.textMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+
+            // Bottom Instructions & Rotation Hint
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.crop_free_rounded, size: 14, color: theme.textMuted),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Align QR code inside box • Tap 🔄 above to rotate if needed',
+                    style: TextStyle(
+                      color: theme.textMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
