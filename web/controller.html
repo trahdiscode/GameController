@@ -3,20 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Tilt Arena - Phone Motion Controller App</title>
+  <title>Tilt Arena - Phone Motion Controller Companion</title>
   <style>
     :root {
-      --bg: #0D0F12;
-      --card-bg: #161A20;
-      --card-border: #262D38;
-      --accent: #38BDF8;
-      --accent-glow: rgba(56, 189, 248, 0.35);
-      --amber: #F59E0B;
-      --amber-glow: rgba(245, 158, 11, 0.3);
-      --text: #F1F5F9;
-      --text-muted: #94A3B8;
-      --text-dim: #64748B;
-      --success: #10B981;
+      --bg: #110E0C;             /* Deep obsidian espresso black */
+      --card-bg: #1C1714;        /* Solid dark roasted walnut */
+      --surface-subtle: #241E1A; /* Elevated tactile dark surface */
+      --border: #382C24;         /* Rich warm brown hairline border */
+      --border-subtle: #2A211B;  /* Deeper border */
+      --text: #FAF6F0;           /* Crisp warm ivory white */
+      --muted: #A8988B;          /* Soft hazelnut taupe */
+      --dim: #6E5F53;            /* Dim espresso tone */
+
+      --amber: #E3B382;          /* Warm Caramel Amber */
+      --terracotta: #D9825B;     /* Terracotta Sienna */
+      --amber-glow: rgba(227, 179, 130, 0.28);
+      --terra-glow: rgba(217, 130, 91, 0.32);
     }
 
     * {
@@ -28,13 +30,13 @@
 
     body {
       margin: 0;
-      padding: 20px 16px;
+      padding: 24px 16px;
       min-height: 100vh;
       min-height: 100dvh;
       background: var(--bg);
       background-image: 
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56, 189, 248, 0.12), transparent),
-        radial-gradient(ellipse 60% 40% at 50% 120%, rgba(245, 158, 11, 0.08), transparent);
+        radial-gradient(ellipse 80% 50% at 50% -15%, rgba(227, 179, 130, 0.10), transparent 70%),
+        radial-gradient(ellipse 60% 40% at 50% 115%, rgba(217, 130, 91, 0.08), transparent 70%);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       display: flex;
@@ -51,169 +53,223 @@
       gap: 16px;
     }
 
-    /* Brand Header */
-    .brand-card {
+    /* Professional Game Brand Header */
+    .brand-header {
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 6px;
     }
-    .brand-icon-wrap {
-      width: 68px;
-      height: 68px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #1E293B, #0F172A);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      box-shadow: 0 8px 24px var(--accent-glow);
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: #1C1714;
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 32px;
-      margin-bottom: 4px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+      margin-bottom: 2px;
+    }
+    .brand-sphere-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 32%, #FFFFFF, #E3B382 45%, #18120E 100%);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      display: block;
     }
     .brand-title {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: 900;
-      letter-spacing: 2px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--text);
+      line-height: 1;
       margin: 0;
-      background: linear-gradient(135deg, #FFFFFF 30%, #94A3B8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
-    .brand-tagline {
-      font-size: 13px;
-      color: var(--text-muted);
+    .brand-caption {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--muted);
       margin: 0;
-      font-weight: 500;
     }
 
-    /* Main Card */
+    /* Main Gateway Card */
     .main-card {
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 22px 18px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 20px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
     }
 
-    /* Session Room Details Pill */
+    /* Session Room Credentials Bar */
     .session-badge {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid #334155;
-      border-radius: 14px;
-      padding: 12px 14px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
+    .session-col {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
     .session-label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-dim);
+      letter-spacing: 1.8px;
+      color: var(--dim);
     }
     .session-code {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 900;
       letter-spacing: 3px;
       color: var(--amber);
-      font-family: monospace;
-      text-shadow: 0 0 16px var(--amber-glow);
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      text-shadow: 0 0 14px var(--amber-glow);
+      line-height: 1;
     }
     .session-host {
       font-size: 11px;
-      color: var(--text-muted);
-      font-family: monospace;
+      font-weight: 600;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      line-height: 1.2;
     }
 
-    /* Notice Pill */
-    .notice-box {
-      background: rgba(245, 158, 11, 0.08);
-      border: 1px solid rgba(245, 158, 11, 0.25);
+    /* Hardware Specification Callout */
+    .spec-card {
+      background: rgba(36, 30, 26, 0.65);
+      border: 1px solid var(--border-subtle);
       border-radius: 12px;
-      padding: 10px 12px;
+      padding: 12px 14px;
       display: flex;
-      gap: 10px;
+      gap: 12px;
       align-items: flex-start;
     }
-    .notice-icon {
-      font-size: 16px;
-      line-height: 1.3;
+    .spec-icon-wrap {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
     }
-    .notice-text {
-      font-size: 12px;
-      color: #FCD34D;
-      line-height: 1.4;
+    .spec-icon-svg {
+      width: 15px;
+      height: 15px;
+      fill: var(--amber);
+    }
+    .spec-content {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .spec-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin: 0;
+    }
+    .spec-desc {
+      font-size: 11.5px;
+      color: var(--muted);
+      line-height: 1.45;
       margin: 0;
     }
 
-    /* Download Action Button */
+    /* Premium Download CTA Button */
     .download-btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 14px;
       width: 100%;
-      background: linear-gradient(135deg, #0284C7, #0369A1);
-      border: 1px solid #38BDF8;
-      border-radius: 16px;
+      background: linear-gradient(135deg, #E3B382 0%, #D9825B 100%);
+      border: none;
+      border-radius: 14px;
       padding: 16px 20px;
-      color: #FFFFFF;
-      font-size: 16px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
+      color: #110E0C;
       text-decoration: none;
-      box-shadow: 0 8px 24px var(--accent-glow);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 8px 24px var(--terra-glow), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
       cursor: pointer;
     }
     .download-btn:active {
-      transform: scale(0.98);
-      box-shadow: 0 4px 12px var(--accent-glow);
+      transform: translateY(1px);
+      filter: brightness(0.94);
+      box-shadow: 0 4px 14px var(--terra-glow);
     }
-    .download-btn-icon {
-      font-size: 20px;
+    .download-btn-icon-svg {
+      width: 22px;
+      height: 22px;
+      fill: #110E0C;
+      flex-shrink: 0;
+    }
+    .download-text-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+    }
+    .download-btn-title {
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      line-height: 1.1;
     }
     .download-btn-sub {
-      display: block;
       font-size: 11px;
-      font-weight: 500;
-      opacity: 0.85;
-      text-align: center;
-      margin-top: 2px;
+      font-weight: 700;
+      opacity: 0.82;
+      letter-spacing: 0.2px;
     }
 
     /* Auto Download Timer */
     .auto-timer {
-      font-size: 12px;
-      color: var(--text-muted);
+      font-size: 11.5px;
+      color: var(--muted);
       text-align: center;
-      margin-top: -6px;
+      margin-top: -4px;
     }
     .auto-timer span {
-      color: var(--accent);
+      color: var(--amber);
       font-weight: 700;
     }
 
-    /* Installation Steps */
+    /* 3-Step Setup Guide */
     .steps-section {
-      border-top: 1px solid var(--card-border);
+      border-top: 1px solid var(--border);
       padding-top: 14px;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
     .steps-title {
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 11px;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      color: var(--muted);
       margin: 0 0 2px 0;
     }
     .step-item {
@@ -225,9 +281,9 @@
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: #1E293B;
-      border: 1px solid #334155;
-      color: var(--accent);
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      color: var(--amber);
       font-size: 11px;
       font-weight: 800;
       display: flex;
@@ -239,63 +295,90 @@
       font-size: 12px;
       color: var(--text);
       margin: 0;
-      line-height: 1.3;
+      line-height: 1.35;
+    }
+    .step-text strong {
+      color: #FFFFFF;
+      font-weight: 700;
+    }
+    .step-text em {
+      color: var(--amber);
+      font-style: normal;
     }
 
     /* Secondary / Backup Link */
     .backup-link-wrap {
       text-align: center;
-      margin-top: 4px;
+      margin-top: 2px;
     }
     .backup-link {
-      font-size: 12px;
-      color: var(--text-dim);
-      text-decoration: underline;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--dim);
+      text-decoration: none;
+      letter-spacing: 0.3px;
       transition: color 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
     .backup-link:hover {
-      color: var(--accent);
+      color: var(--amber);
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <!-- Brand Header -->
-    <div class="brand-card">
-      <div class="brand-icon-wrap">🎮</div>
+    <div class="brand-header">
+      <div class="brand-mark">
+        <span class="brand-sphere-icon"></span>
+      </div>
       <h1 class="brand-title">TILT ARENA</h1>
-      <p class="brand-tagline">Motion Controller Android Companion App</p>
+      <p class="brand-caption">Motion Controller Companion</p>
     </div>
 
     <!-- Main Card -->
     <div class="main-card">
       <!-- Session Room Info -->
       <div class="session-badge">
-        <div>
+        <div class="session-col">
           <div class="session-label">Session Room</div>
           <div id="session-code-display" class="session-code">----</div>
         </div>
-        <div style="text-align: right;">
+        <div class="session-col" style="text-align: right; align-items: flex-end;">
           <div class="session-label">Host Server</div>
           <div id="session-host-display" class="session-host">192.168.1.X:8000</div>
         </div>
       </div>
 
-      <!-- App Required Notice -->
-      <div class="notice-box">
-        <span class="notice-icon">📱</span>
-        <p class="notice-text">
-          <strong>Mobile App Required:</strong> Web controller play is disabled. Tilt Arena requires the high-performance native Android app for 60Hz gyroscope tilt, low latency, and dual vibration rumble.
-        </p>
+      <!-- App Required Hardware Spec Card -->
+      <div class="spec-card">
+        <div class="spec-icon-wrap">
+          <!-- Gyroscope / Motion Sensor SVG Icon -->
+          <svg class="spec-icon-svg" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-13c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
+          </svg>
+        </div>
+        <div class="spec-content">
+          <h2 class="spec-title">60Hz Native Motion Telemetry</h2>
+          <p class="spec-desc">
+            Tilt Arena pairs directly with the native Android app for 60Hz gyroscope steering, zero-latency streaming, and tactile haptic rumble feedback.
+          </p>
+        </div>
       </div>
 
       <!-- Download Button -->
       <div>
         <a id="btn-download" href="/apk" class="download-btn">
-          <span class="download-btn-icon">⬇️</span>
-          <div>
-            <div>Download Tilt Arena Controller</div>
-            <span class="download-btn-sub">Production APK • v1.0.0 • 29.9 MB • Direct LAN</span>
+          <!-- Arrow Down Tray SVG Icon -->
+          <svg class="download-btn-icon-svg" viewBox="0 0 24 24">
+            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+          </svg>
+          <div class="download-text-wrap">
+            <span class="download-btn-title">Download Tilt Arena Controller</span>
+            <span class="download-btn-sub">Direct LAN Delivery • Production APK (v1.0.0)</span>
           </div>
         </a>
       </div>
@@ -325,7 +408,7 @@
       <!-- Backup Link to GitHub Releases -->
       <div class="backup-link-wrap">
         <a href="https://github.com/trahdiscode/GameController/releases/tag/v1.0.0" target="_blank" rel="noopener" class="backup-link">
-          Alternative: Download from GitHub Releases
+          Alternative: Download from GitHub Releases ↗
         </a>
       </div>
     </div>
@@ -366,7 +449,7 @@
         if (secondsLeft <= 0) {
           clearInterval(countdown);
           if (timerBox) {
-            timerBox.innerHTML = 'Download initiated! If it didn\'t start, <a href="/apk" style="color:var(--accent);">tap here</a>.';
+            timerBox.innerHTML = 'Download initiated! If it didn\'t start, <a href="/apk" style="color:var(--amber); text-decoration:underline; font-weight:700;">tap here</a>.';
           }
           // Direct download trigger
           window.location.href = '/apk';
