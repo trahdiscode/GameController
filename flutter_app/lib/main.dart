@@ -1943,13 +1943,37 @@ class _QrScannerSheet extends StatefulWidget {
 class _QrScannerSheetState extends State<_QrScannerSheet> {
   final MobileScannerController _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
+    facing: CameraFacing.back,
   );
   bool _scanned = false;
-  // Default to 2 (180 deg) because Android CameraX landscape preview is inverted 180 deg
-  int _rotationQuarterTurns = 2;
+  // Automatically locked to landscape orientation (3 = landscapeLeft, 1 = landscapeRight)
+  int _rotationQuarterTurns = 3;
+  StreamSubscription? _sensorSub;
+
+  @override
+  void initState() {
+    super.initState();
+    try {
+      _sensorSub = accelerometerEventStream(samplingPeriod: SensorInterval.uiInterval).listen((event) {
+        if (!mounted) return;
+        int turns = _rotationQuarterTurns;
+        if (event.x > 2.5) {
+          turns = 3; // landscapeLeft (standard holding position)
+        } else if (event.x < -2.5) {
+          turns = 1; // landscapeRight (reversed holding position)
+        }
+        if (turns != _rotationQuarterTurns) {
+          setState(() {
+            _rotationQuarterTurns = turns;
+          });
+        }
+      }, onError: (_) {});
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
+    _sensorSub?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -2020,32 +2044,12 @@ class _QrScannerSheetState extends State<_QrScannerSheet> {
                         },
                       ),
 
-                      // Rotate / Flip Preview (Cycle 90 deg / 180 deg)
-                      IconButton(
-                        icon: Icon(
-                          Icons.rotate_right_rounded,
-                          color: _rotationQuarterTurns != 0 ? theme.accent : theme.textMuted,
-                          size: 20,
-                        ),
-                        tooltip: 'Rotate Camera (${_rotationQuarterTurns * 90}°)',
-                        onPressed: () {
-                          setState(() {
-                            _rotationQuarterTurns = (_rotationQuarterTurns + 1) % 4;
-                          });
-                          HapticFeedback.lightImpact();
-                        },
-                      ),
-
-                      // Switch Camera (Back / Front)
-                      IconButton(
-                        icon: Icon(Icons.flip_camera_ios_rounded, color: theme.textMuted, size: 18),
-                        tooltip: 'Switch Camera',
-                        onPressed: () => _controller.switchCamera(),
-                      ),
+                      const SizedBox(width: 4),
 
                       // Close Dialog
                       IconButton(
                         icon: Icon(Icons.close_rounded, color: theme.textMuted, size: 20),
+                        tooltip: 'Close',
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ],
@@ -2063,36 +2067,38 @@ class _QrScannerSheetState extends State<_QrScannerSheet> {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Camera with applied rotation compensation
-                      RotatedBox(
-                        quarterTurns: _rotationQuarterTurns,
-                        child: MobileScanner(
-                          controller: _controller,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, child) {
-                            return Container(
-                              color: Colors.black87,
-                              alignment: Alignment.center,
-                              padding: const EdgeInsets.all(20),
-                              child: Text(
-                                'Camera error: ${error.errorCode.name}\nPlease verify camera permissions in settings.',
-                                style: TextStyle(color: theme.textMuted, fontSize: 12),
-                                textAlign: TextAlign.center,
-                              ),
-                            );
-                          },
-                          onDetect: (capture) {
-                            if (_scanned) return;
-                            for (final barcode in capture.barcodes) {
-                              final val = barcode.rawValue;
-                              if (val != null && val.trim().isNotEmpty) {
-                                _scanned = true;
-                                setState(() {});
-                                widget.onScanned(val.trim());
-                                break;
+                      // Camera with automatic landscape orientation
+                      Positioned.fill(
+                        child: RotatedBox(
+                          quarterTurns: _rotationQuarterTurns,
+                          child: MobileScanner(
+                            controller: _controller,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, child) {
+                              return Container(
+                                color: Colors.black87,
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(20),
+                                child: Text(
+                                  'Camera error: ${error.errorCode.name}\nPlease verify camera permissions in settings.',
+                                  style: TextStyle(color: theme.textMuted, fontSize: 12),
+                                  textAlign: TextAlign.center,
+                                ),
+                              );
+                            },
+                            onDetect: (capture) {
+                              if (_scanned) return;
+                              for (final barcode in capture.barcodes) {
+                                final val = barcode.rawValue;
+                                if (val != null && val.trim().isNotEmpty) {
+                                  _scanned = true;
+                                  setState(() {});
+                                  widget.onScanned(val.trim());
+                                  break;
+                                }
                               }
-                            }
-                          },
+                            },
+                          ),
                         ),
                       ),
 
@@ -2136,7 +2142,7 @@ class _QrScannerSheetState extends State<_QrScannerSheet> {
               ),
             ),
 
-            // Bottom Instructions & Rotation Hint
+            // Bottom Instructions
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
@@ -2145,7 +2151,7 @@ class _QrScannerSheetState extends State<_QrScannerSheet> {
                   Icon(Icons.crop_free_rounded, size: 14, color: theme.textMuted),
                   const SizedBox(width: 6),
                   Text(
-                    'Align QR code inside box • Tap 🔄 above to rotate if needed',
+                    'Align QR code inside box to auto-pair',
                     style: TextStyle(
                       color: theme.textMuted,
                       fontSize: 11,
