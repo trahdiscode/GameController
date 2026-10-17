@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // NEUMORPHIC THEME SYSTEM (Light & Dark Soft UI Architecture)
@@ -14,6 +15,11 @@ class NeuTheme {
   final bool isDark;
 
   const NeuTheme({this.isDark = false});
+  factory NeuTheme.dark() => const NeuTheme(isDark: true);
+  factory NeuTheme.light() => const NeuTheme(isDark: false);
+
+  // Accent Color (Vibrant Cyan / Blue)
+  Color get accent => isDark ? const Color(0xFF38BDF8) : const Color(0xFF2563EB);
 
   // Base Canvas & Neutral Surfaces
   Color get bg => isDark ? const Color(0xFF14171C) : const Color(0xFFE9EDF2);
@@ -527,6 +533,74 @@ class _ControllerScreenState extends State<ControllerScreen> {
     return '$scheme://$host/ws/mobile/$code?pid=$slot';
   }
 
+  void _onQrCodeScanned(String raw) {
+    raw = raw.trim();
+    String? foundHost;
+    String? foundCode;
+
+    try {
+      final uri = Uri.parse(raw);
+      if (uri.host.isNotEmpty) {
+        foundHost = uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
+      }
+      if (uri.queryParameters.containsKey('code')) {
+        foundCode = uri.queryParameters['code'];
+      }
+    } catch (_) {}
+
+    // Fallbacks if not standard URL
+    if (foundCode == null) {
+      final codeMatch = RegExp(r'code=(\d{4})').firstMatch(raw);
+      if (codeMatch != null) {
+        foundCode = codeMatch.group(1);
+      } else if (RegExp(r'^\d{4}$').hasMatch(raw)) {
+        foundCode = raw;
+      }
+    }
+
+    if (foundHost == null) {
+      final hostMatch = RegExp(r'https?://([^/?#]+)').firstMatch(raw);
+      if (hostMatch != null) {
+        foundHost = hostMatch.group(1);
+      }
+    }
+
+    bool updated = false;
+    if (foundHost != null && foundHost.isNotEmpty) {
+      _serverController.text = foundHost;
+      updated = true;
+    }
+    if (foundCode != null && foundCode.isNotEmpty) {
+      _codeController.text = foundCode;
+      updated = true;
+    }
+
+    if (updated) {
+      _haptic(duration: 80);
+      _showToast('QR Scanned! Room: ${_codeController.text}');
+      if (_codeController.text.isNotEmpty) {
+        _connect();
+      }
+    } else {
+      _showToast('Could not read room code from QR');
+    }
+  }
+
+  void _openQrScanner() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _QrScannerSheet(
+        isDark: _isDarkMode,
+        onScanned: (val) {
+          Navigator.of(ctx).pop();
+          _onQrCodeScanned(val);
+        },
+      ),
+    );
+  }
+
   void _connect() async {
     final code = _codeController.text.trim();
     final server = _serverController.text.trim();
@@ -968,6 +1042,20 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   fontSize: 15,
                 ),
               ),
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Neumorphic QR Scanner Button
+          NeuButton(
+            theme: theme,
+            radius: 12,
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+            onTap: _openQrScanner,
+            child: Icon(
+              Icons.qr_code_scanner_rounded,
+              color: theme.accent,
+              size: 20,
             ),
           ),
           const SizedBox(width: 8),
@@ -1644,6 +1732,163 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QrScannerSheet extends StatefulWidget {
+  final bool isDark;
+  final ValueChanged<String> onScanned;
+
+  const _QrScannerSheet({
+    required this.isDark,
+    required this.onScanned,
+  });
+
+  @override
+  State<_QrScannerSheet> createState() => _QrScannerSheetState();
+}
+
+class _QrScannerSheetState extends State<_QrScannerSheet> {
+  final MobileScannerController _controller = MobileScannerController(
+    detectionSpeed: DetectionSpeed.noDuplicates,
+  );
+  bool _scanned = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = widget.isDark ? NeuTheme.dark() : NeuTheme.light();
+    final sheetHeight = MediaQuery.of(context).size.height * 0.70;
+
+    return Container(
+      height: sheetHeight,
+      decoration: BoxDecoration(
+        color: theme.bg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 10),
+          Container(
+            width: 42,
+            height: 4,
+            decoration: BoxDecoration(
+              color: theme.textMuted.withOpacity(0.35),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.qr_code_scanner_rounded, color: theme.accent, size: 22),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Scan Room QR Code',
+                      style: TextStyle(
+                        color: theme.textPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    ValueListenableBuilder<MobileScannerState>(
+                      valueListenable: _controller,
+                      builder: (context, state, child) {
+                        final isTorchOn = state.torchState == TorchState.on;
+                        return IconButton(
+                          icon: Icon(
+                            isTorchOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
+                            color: isTorchOn ? theme.accent : theme.textMuted,
+                            size: 20,
+                          ),
+                          onPressed: () => _controller.toggleTorch(),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close_rounded, color: theme.textMuted, size: 22),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    MobileScanner(
+                      controller: _controller,
+                      errorBuilder: (context, error, child) {
+                        return Container(
+                          color: Colors.black54,
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.all(20),
+                          child: Text(
+                            'Camera error: ${error.errorCode.name}\nPlease check camera permissions.',
+                            style: TextStyle(color: theme.textMuted, fontSize: 13),
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      },
+                      onDetect: (capture) {
+                        if (_scanned) return;
+                        for (final barcode in capture.barcodes) {
+                          final val = barcode.rawValue;
+                          if (val != null && val.trim().isNotEmpty) {
+                            _scanned = true;
+                            widget.onScanned(val.trim());
+                            break;
+                          }
+                        }
+                      },
+                    ),
+                    // Centered Reticle
+                    Container(
+                      width: 220,
+                      height: 220,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: theme.accent, width: 2.5),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+            child: Text(
+              'Point camera at the QR code displayed on the laptop screen',
+              style: TextStyle(
+                color: theme.textMuted,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
         ],

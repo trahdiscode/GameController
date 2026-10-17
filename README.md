@@ -68,7 +68,7 @@ Up to 4 phones per room.
 ```powershell
 cd flutter_app
 flutter run                  # runs directly on connected Android phone
-flutter build apk --debug    # outputs to flutter_app/build/app/outputs/flutter-apk/app-debug.apk
+flutter build apk --release  # outputs to flutter_app/build/app/outputs/flutter-apk/app-release.apk
 ```
 
 ## Build the Capacitor APK (Alternative)
@@ -83,8 +83,10 @@ npm run android          # opens Android Studio -> Build > Build APK(s)
 Output: `app/android/app/build/outputs/apk/debug/app-debug.apk`. Enable "install unknown apps" on the phone to sideload.
 The app bundles the controller page, so its origin is secure (sensors allowed) while it talks to your LAN server over `ws://`.
 
-## Pairing
-Browser connects to `/ws/browser`, the server mints an unused 4-digit code. Phones connect to `/ws/mobile/<code>` and are assigned player slots 1-4 (`hello` message). The QR encodes `http(s)://host/controller?code=NNNN`.
+## Pairing & Connection
+- **Instant QR Code Scanner (In-App):** Tap the QR scanner icon next to the Connect button inside the mobile controller app. Point your camera at the QR code displayed on the laptop screen—it automatically reads the server IP and room code, populates both fields, and connects instantly.
+- **Side-by-Side Server IP & Room Code Display:** The laptop screen prominently displays both the Laptop LAN IP (`http://192.168.1.X:8000`) and the 4-digit Room Code side-by-side next to the QR code for effortless manual entry.
+- **Web Pairing:** Alternatively, opening the scanned QR URL in any mobile browser automatically routes to `/controller?code=NNNN` and pairs without any manual setup.
 
 ## Latency approach
 - **Raw relay:** the server never parses sensor JSON. It forwards the text frame as received.
