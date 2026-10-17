@@ -271,6 +271,10 @@ class _NeuButtonState extends State<NeuButton> {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
   runApp(const TiltArenaApp());
 }
 
@@ -333,10 +337,9 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
   // Active Controller Layout
   int _selectedLayout = 0; // 0: Motion & Tilt, 1: Pro Gamepad, 2: Racing Wheel
-  bool _isLandscape = false;
-  int _orientationMode = 0; // 0: Auto, 1: Locked Landscape, 2: Locked Portrait
+  bool _isLandscape = true;
 
-  // Sensitivity & Inversion controls
+  // Sensitivity & Inversion controls (Built-in reversed natural steering default)
   double _sensitivity = 1.0;
   bool _invertRoll = false;
   bool _invertPitch = false;
@@ -353,6 +356,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     _loadPreferences();
     _startSensorListeners();
   }
@@ -400,31 +407,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
     _showToast(_isDarkMode ? 'Dark Mode' : 'Light Mode');
   }
 
-  void _cycleOrientation() {
-    setState(() {
-      _orientationMode = (_orientationMode + 1) % 3;
-    });
 
-    if (_orientationMode == 1) {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-      _showToast('Locked to Landscape');
-    } else if (_orientationMode == 2) {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-      ]);
-      _showToast('Locked to Portrait');
-    } else {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-      _showToast('Auto-Rotation Enabled');
-    }
-  }
 
   void _showToast(String msg) {
     if (!mounted) return;
@@ -729,7 +712,8 @@ class _ControllerScreenState extends State<ControllerScreen> {
     if (!_isConnected || _channel == null || _playerId == 0) return;
 
     double calPitch = (_smoothPitch - _offsetPitch) * _sensitivity;
-    double calRoll = (_smoothRoll - _offsetRoll) * _sensitivity;
+    // Built-in reversed steering for natural landscape steering
+    double calRoll = -(_smoothRoll - _offsetRoll) * _sensitivity;
 
     if (_invertRoll) calRoll = -calRoll;
     if (_invertPitch) calPitch = -calPitch;
@@ -795,14 +779,11 @@ class _ControllerScreenState extends State<ControllerScreen> {
           color: theme.bg,
           child: Column(
             children: [
-              // Pure Neumorphic Minimal Top Bar
+              // Clean, Professional Minimal Top Bar with Embedded Mode Selector
               _buildTopBar(theme),
 
-              // Pure Neumorphic Setup Panel
+              // Setup Panel (only when disconnected)
               if (!_isConnected) _buildSetupCard(theme),
-
-              // Pure Neumorphic Mode Selector Tabs
-              _buildModeTabs(theme),
 
               // Main Active Neumorphic View
               Expanded(
@@ -817,167 +798,93 @@ class _ControllerScreenState extends State<ControllerScreen> {
     );
   }
 
-  Widget _buildTopBar(NeuTheme theme) {
-    final padVert = _isLandscape ? 6.0 : 8.0;
+  void _toggleInvertRoll() async {
+    setState(() => _invertRoll = !_invertRoll);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('invert_roll', _invertRoll);
+    _haptic(duration: 25);
+    _showToast(_invertRoll ? 'Steer: Inverted (Alt)' : 'Steer: Natural');
+  }
 
+  Widget _buildTopBar(NeuTheme theme) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: padVert),
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: _isLandscape ? 5.0 : 8.0),
       color: theme.bg,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Neumorphic Connection Status Pill (Recessed well with minimal shadow)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: theme.recessed(radius: 20, distance: 2.0, blur: 5.0),
-            child: Row(
-              children: [
-                Container(
-                  width: 7,
-                  height: 7,
-                  decoration: BoxDecoration(
-                    color: _statusColor,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(color: _statusColor.withOpacity(0.5), blurRadius: 4),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  _statusText,
-                  style: TextStyle(
-                    color: theme.textPrimary,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.3,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
+          // 1. Connection & Latency Badge
+          _buildStatusBadge(theme),
+
+          const SizedBox(width: 10),
+
+          // 2. Embedded Mode Tabs in Center
+          Expanded(
+            child: Center(
+              child: _buildEmbeddedModeTabs(theme),
             ),
           ),
 
-          // Actions Row (Dark Mode, Orientation Lock, Invert Roll, Invert Pitch, Sensitivity, Latency, Disconnect)
+          const SizedBox(width: 10),
+
+          // 3. Compact Quick Controls: Steer Invert Chip + Settings Cog + (Disconnect)
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Dark Mode / Light Mode Toggle
+              // Quick Steer Invert Chip
               NeuButton(
                 theme: theme,
                 radius: 10,
-                padding: const EdgeInsets.all(7),
-                isSelected: _isDarkMode,
-                onTap: _toggleDarkMode,
-                child: Icon(
-                  _isDarkMode ? Icons.dark_mode : Icons.light_mode,
-                  color: _isDarkMode ? const Color(0xFFFACC15) : theme.textPrimary,
-                  size: 16,
-                ),
-              ),
-              const SizedBox(width: 6),
-
-              // Screen Rotation Lock
-              NeuButton(
-                theme: theme,
-                radius: 10,
-                padding: const EdgeInsets.all(7),
-                isSelected: _orientationMode != 0,
-                onTap: _cycleOrientation,
-                child: Icon(
-                  _orientationMode == 1
-                      ? Icons.stay_current_landscape
-                      : (_orientationMode == 2 ? Icons.stay_current_portrait : Icons.screen_rotation),
-                  color: _orientationMode == 0 ? theme.textMuted : theme.textPrimary,
-                  size: 16,
-                ),
-              ),
-              const SizedBox(width: 6),
-
-              // Invert Steering (Roll)
-              NeuButton(
-                theme: theme,
-                radius: 10,
-                padding: const EdgeInsets.all(7),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
                 isSelected: _invertRoll,
-                onTap: () {
-                  setState(() => _invertRoll = !_invertRoll);
-                  _showToast(_invertRoll ? 'Steer Invert: ON' : 'Steer Invert: OFF');
-                },
-                child: Icon(
-                  Icons.swap_horiz,
-                  color: _invertRoll ? theme.textPrimary : theme.textMuted,
-                  size: 16,
+                onTap: _toggleInvertRoll,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.swap_horiz_rounded,
+                      color: _invertRoll ? theme.accent : theme.textMuted,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _invertRoll ? 'INVERT' : 'STEER',
+                      style: TextStyle(
+                        color: _invertRoll ? theme.accent : theme.textSecondary,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 10,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
 
-              // Invert Pitch
+              // Settings Cog (Opens Settings Sheet)
               NeuButton(
                 theme: theme,
                 radius: 10,
                 padding: const EdgeInsets.all(7),
-                isSelected: _invertPitch,
-                onTap: () {
-                  setState(() => _invertPitch = !_invertPitch);
-                  _showToast(_invertPitch ? 'Pitch Invert: ON' : 'Pitch Invert: OFF');
-                },
+                onTap: () => _openSettingsSheet(theme),
                 child: Icon(
-                  Icons.swap_vert,
-                  color: _invertPitch ? theme.textPrimary : theme.textMuted,
+                  Icons.tune_rounded,
+                  color: theme.textSecondary,
                   size: 16,
-                ),
-              ),
-              const SizedBox(width: 6),
-
-              // Sensitivity Quick Toggle
-              NeuButton(
-                theme: theme,
-                radius: 10,
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-                isSelected: _sensitivity > 1.0,
-                onTap: () {
-                  setState(() {
-                    if (_sensitivity == 1.0) {
-                      _sensitivity = 1.4;
-                    } else if (_sensitivity == 1.4) {
-                      _sensitivity = 2.0;
-                    } else {
-                      _sensitivity = 1.0;
-                    }
-                  });
-                  _showToast('Sensitivity: ${_sensitivity}x');
-                },
-                child: Text(
-                  '${_sensitivity}x',
-                  style: TextStyle(
-                    color: _sensitivity > 1.0 ? theme.textPrimary : theme.textSecondary,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
-                  ),
                 ),
               ),
 
               if (_isConnected) ...[
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  decoration: theme.recessed(radius: 10, distance: 2.0, blur: 5.0),
-                  child: Text(
-                    '${_rtt}ms',
-                    style: TextStyle(
-                      color: theme.textPrimary,
-                      fontWeight: FontWeight.w800,
-                      fontFamily: 'monospace',
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 NeuButton(
                   theme: theme,
                   radius: 10,
                   padding: const EdgeInsets.all(7),
                   onTap: _disconnect,
-                  child: Icon(Icons.power_settings_new, color: theme.textSecondary, size: 16),
+                  child: const Icon(
+                    Icons.power_settings_new_rounded,
+                    color: Color(0xFFEF4444),
+                    size: 16,
+                  ),
                 ),
               ],
             ],
@@ -987,93 +894,33 @@ class _ControllerScreenState extends State<ControllerScreen> {
     );
   }
 
-  Widget _buildSetupCard(NeuTheme theme) {
+  Widget _buildStatusBadge(NeuTheme theme) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 14, vertical: _isLandscape ? 4 : 8),
-      padding: EdgeInsets.all(_isLandscape ? 10 : 14),
-      decoration: theme.raised(radius: 18, distance: 5.0, blur: 14.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: theme.recessed(radius: 16, distance: 1.5, blur: 4.0),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Neumorphic Input: Laptop IP
-          Expanded(
-            flex: 3,
-            child: Container(
-              decoration: theme.recessed(radius: 12, distance: 2.5, blur: 6.0),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-              child: TextField(
-                controller: _serverController,
-                decoration: InputDecoration(
-                  labelText: 'Laptop IP : Port',
-                  labelStyle: TextStyle(color: theme.textMuted, fontSize: 11, fontWeight: FontWeight.w600),
-                  isDense: true,
-                  border: InputBorder.none,
-                  hintText: '192.168.1.X:8000',
-                  hintStyle: TextStyle(color: theme.textLight, fontSize: 12),
-                ),
-                style: TextStyle(color: theme.textPrimary, fontSize: 13, fontWeight: FontWeight.w700),
-              ),
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: _statusColor,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(color: _statusColor.withOpacity(0.6), blurRadius: 4),
+              ],
             ),
           ),
-          const SizedBox(width: 8),
-
-          // Neumorphic Input: Room Code
-          Expanded(
-            flex: 2,
-            child: Container(
-              decoration: theme.recessed(radius: 12, distance: 2.5, blur: 6.0),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-              child: TextField(
-                controller: _codeController,
-                keyboardType: TextInputType.number,
-                maxLength: 4,
-                decoration: InputDecoration(
-                  labelText: 'Room Code',
-                  labelStyle: TextStyle(color: theme.textMuted, fontSize: 11, fontWeight: FontWeight.w600),
-                  isDense: true,
-                  counterText: '',
-                  border: InputBorder.none,
-                  hintText: '4-digits',
-                  hintStyle: TextStyle(color: theme.textLight, fontSize: 12),
-                ),
-                style: TextStyle(
-                  color: theme.textPrimary,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2.5,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          // Neumorphic QR Scanner Button
-          NeuButton(
-            theme: theme,
-            radius: 12,
-            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-            onTap: _openQrScanner,
-            child: Icon(
-              Icons.qr_code_scanner_rounded,
-              color: theme.accent,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 8),
-
-          // Neumorphic Connect CTA Button
-          NeuButton(
-            theme: theme,
-            radius: 12,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            onTap: _isConnecting ? null : _connect,
-            child: Text(
-              _isConnecting ? '...' : 'Connect',
-              style: TextStyle(
-                color: theme.textPrimary,
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-              ),
+          const SizedBox(width: 6),
+          Text(
+            _isConnected ? 'P$_playerId • ${_rtt}ms' : _statusText,
+            style: TextStyle(
+              color: theme.textPrimary,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.2,
+              fontSize: 11,
+              fontFamily: _isConnected ? 'monospace' : null,
             ),
           ),
         ],
@@ -1081,15 +928,14 @@ class _ControllerScreenState extends State<ControllerScreen> {
     );
   }
 
-  Widget _buildModeTabs(NeuTheme theme) {
+  Widget _buildEmbeddedModeTabs(NeuTheme theme) {
     final modes = ['📱 Motion', '🎮 Gamepad', '🏎️ Wheel'];
-    final tabHeight = _isLandscape ? 34.0 : 42.0;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 14, vertical: _isLandscape ? 4 : 6),
-      height: tabHeight,
-      padding: const EdgeInsets.all(3),
-      decoration: theme.recessed(radius: 14, distance: 2.0, blur: 5.0),
+      constraints: const BoxConstraints(maxWidth: 310),
+      height: 32,
+      padding: const EdgeInsets.all(2.5),
+      decoration: theme.recessed(radius: 10, distance: 1.5, blur: 4.0),
       child: Row(
         children: List.generate(modes.length, (idx) {
           final isSel = _selectedLayout == idx;
@@ -1100,28 +946,365 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 _haptic(duration: 20);
               },
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 160),
+                duration: const Duration(milliseconds: 140),
                 alignment: Alignment.center,
                 decoration: isSel
                     ? theme.raised(
-                        radius: 11,
-                        distance: 3.0,
-                        blur: 8.0,
+                        radius: 8,
+                        distance: 2.0,
+                        blur: 5.0,
+                        border: Border.all(color: theme.accent.withOpacity(0.35), width: 0.8),
                       )
-                    : null,
+                    : const BoxDecoration(),
                 child: Text(
                   modes[idx],
                   style: TextStyle(
                     color: isSel ? theme.textPrimary : theme.textMuted,
-                    fontWeight: isSel ? FontWeight.w900 : FontWeight.w600,
-                    letterSpacing: 0.3,
-                    fontSize: 12,
+                    fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
+                    fontSize: 11,
                   ),
                 ),
               ),
             ),
           );
         }),
+      ),
+    );
+  }
+
+  void _openSettingsSheet(NeuTheme theme) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final t = NeuTheme(isDark: _isDarkMode);
+            return Container(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              decoration: BoxDecoration(
+                color: t.bg,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                border: Border(top: BorderSide(color: t.textSecondary.withOpacity(0.2))),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 38,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: t.textMuted.withOpacity(0.35),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.tune_rounded, color: t.accent, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Controller Settings',
+                            style: TextStyle(
+                              color: t.textPrimary,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close_rounded, color: t.textMuted, size: 20),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Setting 1: Steer Invert (Roll)
+                  _buildSettingRow(
+                    theme: t,
+                    icon: Icons.swap_horiz_rounded,
+                    title: 'Steering Invert (Roll)',
+                    subtitle: _invertRoll ? 'Inverted (Alternative)' : 'Natural (Default Reversed)',
+                    trailing: Switch(
+                      value: _invertRoll,
+                      activeColor: t.accent,
+                      onChanged: (val) {
+                        setState(() => _invertRoll = val);
+                        setSheetState(() {});
+                        _haptic(duration: 20);
+                      },
+                    ),
+                  ),
+
+                  // Setting 2: Pitch Invert
+                  _buildSettingRow(
+                    theme: t,
+                    icon: Icons.swap_vert_rounded,
+                    title: 'Pitch Invert (Forward/Back)',
+                    subtitle: _invertPitch ? 'Inverted' : 'Natural',
+                    trailing: Switch(
+                      value: _invertPitch,
+                      activeColor: t.accent,
+                      onChanged: (val) {
+                        setState(() => _invertPitch = val);
+                        setSheetState(() {});
+                        _haptic(duration: 20);
+                      },
+                    ),
+                  ),
+
+                  // Setting 3: Sensitivity
+                  _buildSettingRow(
+                    theme: t,
+                    icon: Icons.speed_rounded,
+                    title: 'Tilt Sensitivity',
+                    subtitle: 'Current: ${_sensitivity}x',
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [1.0, 1.4, 2.0].map((s) {
+                        final isSel = _sensitivity == s;
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() => _sensitivity = s);
+                              setSheetState(() {});
+                              _haptic(duration: 20);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                              decoration: isSel
+                                  ? t.pressed(radius: 8)
+                                  : t.raised(radius: 8, distance: 2.0, blur: 4.0),
+                              child: Text(
+                                '${s}x',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: isSel ? t.accent : t.textPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                  // Setting 4: Theme Toggle & Calibrate
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: NeuButton(
+                            theme: t,
+                            radius: 12,
+                            padding: const EdgeInsets.symmetric(vertical: 11),
+                            onTap: () {
+                              _toggleDarkMode();
+                              setSheetState(() {});
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  _isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                                  size: 16,
+                                  color: _isDarkMode ? const Color(0xFFFACC15) : t.textPrimary,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _isDarkMode ? 'Light Mode' : 'Dark Mode',
+                                  style: TextStyle(
+                                    color: t.textPrimary,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: NeuButton(
+                            theme: t,
+                            radius: 12,
+                            padding: const EdgeInsets.symmetric(vertical: 11),
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              _calibrateNeutral();
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.gps_fixed_rounded, size: 16, color: t.accent),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Calibrate Horizon',
+                                  style: TextStyle(
+                                    color: t.textPrimary,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSettingRow({
+    required NeuTheme theme,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Widget trailing,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: theme.textMuted, size: 18),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: theme.textPrimary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: theme.textMuted,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          trailing,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSetupCard(NeuTheme theme) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: theme.raised(radius: 14, distance: 3.0, blur: 8.0),
+      child: Row(
+        children: [
+          // Neumorphic Input: Laptop IP
+          Expanded(
+            flex: 3,
+            child: Container(
+              decoration: theme.recessed(radius: 10, distance: 2.0, blur: 4.0),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              child: TextField(
+                controller: _serverController,
+                decoration: InputDecoration(
+                  labelText: 'Laptop IP : Port',
+                  labelStyle: TextStyle(color: theme.textMuted, fontSize: 10, fontWeight: FontWeight.w600),
+                  isDense: true,
+                  border: InputBorder.none,
+                  hintText: '192.168.1.X:8000',
+                  hintStyle: TextStyle(color: theme.textLight, fontSize: 11),
+                ),
+                style: TextStyle(color: theme.textPrimary, fontSize: 12, fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Neumorphic Input: Room Code
+          Expanded(
+            flex: 2,
+            child: Container(
+              decoration: theme.recessed(radius: 10, distance: 2.0, blur: 4.0),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              child: TextField(
+                controller: _codeController,
+                keyboardType: TextInputType.number,
+                maxLength: 4,
+                decoration: InputDecoration(
+                  labelText: 'Room Code',
+                  labelStyle: TextStyle(color: theme.textMuted, fontSize: 10, fontWeight: FontWeight.w600),
+                  isDense: true,
+                  counterText: '',
+                  border: InputBorder.none,
+                  hintText: '4-digits',
+                  hintStyle: TextStyle(color: theme.textLight, fontSize: 11),
+                ),
+                style: TextStyle(
+                  color: theme.textPrimary,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2.0,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Neumorphic QR Scanner Button
+          NeuButton(
+            theme: theme,
+            radius: 10,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            onTap: _openQrScanner,
+            child: Icon(
+              Icons.qr_code_scanner_rounded,
+              color: theme.accent,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Neumorphic Connect CTA Button
+          NeuButton(
+            theme: theme,
+            radius: 10,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            onTap: _isConnecting ? null : _connect,
+            child: Text(
+              _isConnecting ? '...' : 'Connect',
+              style: TextStyle(
+                color: theme.textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
