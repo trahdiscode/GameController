@@ -95,11 +95,6 @@ Tilt Arena supports multiple input styles selectable directly from the controlle
 - **Trackpad**: Swipe across the tactile pad surface to flick and direct the marble.
 - **Throttle Lever**: Set steady forward cruising speed with tactical macro buttons.
 
-### 5. 💻 Keyboard Fallback (Player 0)
-No phone? A spectator on the laptop can join as a 5th player using physical keyboard keys:
-- **Steer**: <kbd>▲</kbd> <kbd>◀</kbd> <kbd>▼</kbd> <kbd>▶</kbd> Arrow Keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>.
-- **Hop / Jump**: <kbd>Spacebar</kbd>.
-
 ---
 
 ## 📳 Haptic & Audio Feedback
@@ -125,7 +120,6 @@ You can connect up to **4 mobile phones simultaneously** to a single laptop disp
 | **Player 2** | `P2` | Terracotta Sienna Ceramic | Warm Terracotta |
 | **Player 3** | `P3` | Caramel Amber Stone | Golden Sand |
 | **Player 4** | `P4` | Roasted Mocha Quartz | Dark Roasted Brown |
-| **Player 0** | `KB` | Slate Ash Taupe | Keyboard Standby |
 
 - **Real-Time Scoreboard**: Located at the top of the game screen, tracking live points, controller mode badge, and latency (RTT in milliseconds).
 - **Slot Reclamation**: If a player temporarily disconnects, their slot and score are safely preserved upon reconnecting.

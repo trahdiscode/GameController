@@ -20,7 +20,6 @@
       --p2: #D9825B;             /* Player 2: Terracotta Sienna */
       --p3: #E3B382;             /* Player 3: Warm Caramel Amber */
       --p4: #9C7A63;             /* Player 4: Roasted Mocha */
-      --kb: #B3A497;             /* KB: Slate Taupe */
     }
     * { box-sizing: border-box; }
     body {
@@ -390,18 +389,6 @@
         <span id="rtt-p4" class="player-latency none">-- ms</span>
       </div>
     </div>
-
-    <!-- Keyboard Player (P0) -->
-    <div id="card-kb" class="player-card offline" style="--p-col: var(--kb); display: none;">
-      <div class="player-card-header">
-        <span class="player-tag"><span class="player-conn-dot"></span>Keyboard (P0)</span>
-        <span id="status-kb" style="font-size:11px;color:var(--muted)">Standby</span>
-      </div>
-      <div class="player-stats-row">
-        <span id="score-kb" class="player-score">0 pts</span>
-        <span id="rtt-kb" class="player-latency">Local</span>
-      </div>
-    </div>
   </div>
 
   <!-- Arena Canvas -->
@@ -411,8 +398,7 @@
 
   <!-- Controls help bar -->
   <div class="instructions-bar">
-    <span>📱 <b>Phone:</b> Tilt to steer · Shake or tap JUMP to hop & dash</span>
-    <span>⌨️ <b>Keyboard Fallback:</b> <kbd>▲</kbd> <kbd>◀</kbd> <kbd>▼</kbd> <kbd>▶</kbd> steer · <kbd>Space</kbd> jump</span>
+    <span>📱 <b>Phone Motion Controller:</b> Tilt to steer · Shake or tap JUMP to hop & dash over walls · Speed pads boost velocity</span>
   </div>
 
   <script>
@@ -426,7 +412,6 @@
 
       // Color scheme: Dark Mode - Brown, Black and White
       const COLORS = {
-        0: '#B3A497', // Slate Taupe (KB)
         1: '#FFFFFF', // Pure White (P1)
         2: '#D9825B', // Terracotta Sienna (P2)
         3: '#E3B382', // Warm Caramel (P3)
@@ -738,47 +723,6 @@
       }
 
       connectBrowserWs();
-
-      // Keyboard Fallback (Player 0)
-      const keys = {};
-      function updateKeyboardInput() {
-        const kbPlayer = getOrCreatePlayer(0);
-        $('card-kb').style.display = 'flex';
-        kbPlayer.on = true;
-
-        let tx = 0;
-        let ty = 0;
-        if (keys['ArrowRight'] || keys['KeyD']) tx += 1;
-        if (keys['ArrowLeft'] || keys['KeyA']) tx -= 1;
-        if (keys['ArrowDown'] || keys['KeyS']) ty += 1;
-        if (keys['ArrowUp'] || keys['KeyW']) ty -= 1;
-
-        kbPlayer.tx = tx;
-        kbPlayer.ty = ty;
-      }
-
-      window.addEventListener('keydown', e => {
-        if (e.key.startsWith('Arrow') || ['KeyW','KeyA','KeyS','KeyD',' '].includes(e.code) || e.key === ' ') {
-          if (e.key === ' ' || e.code === 'Space') {
-            e.preventDefault();
-            if (!e.repeat) {
-              const p = getOrCreatePlayer(0);
-              jumpBall(p);
-            }
-          }
-          keys[e.key] = true;
-          keys[e.code] = true;
-          updateKeyboardInput();
-        }
-      });
-
-      window.addEventListener('keyup', e => {
-        if (e.key.startsWith('Arrow') || ['KeyW','KeyA','KeyS','KeyD',' '].includes(e.code) || e.key === ' ') {
-          keys[e.key] = false;
-          keys[e.code] = false;
-          updateKeyboardInput();
-        }
-      });
 
       // Wall collision handling
       function handleWallCollision(p, w) {
@@ -1092,7 +1036,7 @@
           ctx.font = 'bold 11px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(p.id ? `P${p.id}` : 'KB', p.x, by);
+          ctx.fillText(`P${p.id}`, p.x, by);
 
           ctx.restore();
         }
@@ -1136,17 +1080,6 @@
             rttEl.textContent = '-- ms';
             rttEl.classList.add('none');
           }
-        }
-
-        // Keyboard player
-        const kb = players[0];
-        if (kb && kb.on) {
-          const cardKb = $('card-kb');
-          cardKb.classList.add('active');
-          cardKb.classList.remove('offline');
-          $('status-kb').textContent = 'Active';
-          $('status-kb').style.color = '#4ADE80';
-          $('score-kb').textContent = `${kb.score} pts`;
         }
       }, 250);
 

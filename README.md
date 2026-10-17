@@ -45,7 +45,6 @@ Switch modes on your phone anytime from the top bar:
 - **🎮 Gamepad Pro:** 360° dual analog thumbsticks, 4-way D-Pad, ABXY buttons, Nitro boost (`RT`), and handbrake.
 - **🏎️ Racing Wheel:** On-screen touch steering wheel + gyro steering with progressive gas and brake pedals.
 - **🖱️ Trackpad & ⌨️ Action Deck:** Swipe pad steering or vertical throttle lever with macro triggers.
-- **💻 Keyboard Fallback (P0):** <kbd>▲</kbd> <kbd>◀</kbd> <kbd>▼</kbd> <kbd>▶</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to steer, <kbd>Spacebar</kbd> to jump.
 
 ### 4. Local Multiplayer (Up to 4 Players)
 - Up to 4 phones can join a single room screen:
@@ -63,7 +62,7 @@ Controls & Layouts:
 - **⌨️ Action Deck:** Vertical throttle lever (0-100%), POV hat switch, primary fire, missiles, flares, airbrake, and programmable M1/M2 macros.
 - **⚙️ Every Control Option:** Slide-out settings drawer with button skins (Xbox / PS / Nintendo), Southpaw mode, haptic intensity, tactile sound clicks, tilt deadzone/sensitivity, invert pitch/roll, stick deadzone/sensitivity/inversion, and screen wake lock.
 
-Up to 4 phones per room. Arrow keys + space work as a fifth, keyboard player.
+Up to 4 phones per room.
 
 ## Run the Flutter Mobile Controller
 ```powershell
